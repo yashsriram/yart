@@ -17,6 +17,8 @@ using namespace std;
 #define M_PI 3.1415926535
 #endif
 
+#define SHADOW_GRACE 1e-4
+
 // Returns index of smallest non-negative number from vector
 // If all are negative then returns -1
 int smallestNonNegativeIndex(const vector<float> &vector) {
@@ -43,16 +45,16 @@ int smallestNonNegativeIndex(const vector<float> &vector) {
     return ans;
 }
 
-pair<int, float> traceRay(const Ray &ray, const Scene &scene) {
+pair<int, float> traceRay(const Ray &ray, const Scene &scene, float grace = 0) {
     vector<float> Ts;
     // Inspect intersection with all spheres
     for (const auto &sphere : scene.spheres) {
-        float t = smallestPositiveT(ray, sphere);
+        float t = smallestPositiveT(ray, sphere, grace);
         Ts.push_back(t);
     }
     // Inspect intersection with all ellipsoids
     for (const auto &ellipsoid : scene.ellipsoids) {
-        float t = smallestPositiveT(ray, ellipsoid);
+        float t = smallestPositiveT(ray, ellipsoid, grace);
         Ts.push_back(t);
     }
     // Find smallest non-negative t
@@ -75,15 +77,36 @@ string calculateColor(const Ray& ray, const Scene& scene, int minTIndex, float m
             Vector3D poi = ray.getPoint(minT);
             Vector3D N = (poi - sphere.center).unit();
             Vector3D V = (scene.eye - poi).unit();
-
+            // First term of blinn-phong model
             Color phongColor = color.diffusion * color.ka;
 
             for (auto &light: scene.lights) {
                 Vector3D Li = light.getL(poi);
+                // Shadow factor determination
+                float S = 1;
+                Ray shadowRay(poi, Li);
+                pair<int, float> shadow_minTIndex_minT = traceRay(shadowRay, scene, SHADOW_GRACE);
+                // Shadow ray hit something
+                if (shadow_minTIndex_minT.first >= 0) {
+                    // Directional light => Shadow exists
+                    if (light.type == 0) {
+                        S = 0;
+                    }
+                    // Positional light => Check for distance of hit
+                    else {
+                        Vector3D hitPoint = shadowRay.getPoint(shadow_minTIndex_minT.second);
+                        Vector3D hitVector = hitPoint - poi;
+                        Vector3D lightVector = light.vector - poi;
+                        if (hitVector.absSquare() < lightVector.absSquare()) {
+                            S = 0;
+                        }
+                    }
+                }
+                // Second and third terms of blinn-phong model
                 Vector3D Hi = (Li + V).unit();
                 Color secondTerm = color.diffusion * color.kd * max(0.0, (double) N.dot(Li));
                 Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
-                Color weightedTerm = (secondTerm + thirdTerm) * light.color;
+                Color weightedTerm = (secondTerm + thirdTerm) * light.color * S;
                 phongColor = phongColor + weightedTerm;
             }
 

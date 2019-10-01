@@ -1,5 +1,5 @@
 // Returns smallest positive t (ray parameter) if intersection does occurs in-front of the eye else returns -1
-float smallestPositiveT(const Ray &ray, const Sphere &sphere) {
+float smallestPositiveT(const Ray &ray, const Sphere &sphere, float grace) {
     // A = xd^2 + yd^2 + zd^2 = 1
     float A = 1;
     // B = xdxe + ... - xdxc - ...
@@ -20,7 +20,7 @@ float smallestPositiveT(const Ray &ray, const Sphere &sphere) {
     // ray intersects at one point i.e. t1 == t2
     if (discriminant == 0) {
         // if t1 == t2 == non-negative return it
-        if (t1 >= 0) {
+        if (t1 >= grace) {
             return t1;
         }
         // else return -1 to indicate behind eye intersection
@@ -28,11 +28,11 @@ float smallestPositiveT(const Ray &ray, const Sphere &sphere) {
     }
 
     // discriminant > 0 i.e. ray intersects at two points
-    if (t1 < 0 && t2 < 0) {
+    if (t1 < grace && t2 < grace) {
         return -1;
-    } else if (t1 >= 0 && t2 < 0) {
+    } else if (t1 >= grace && t2 < grace) {
         return t1;
-    } else if (t2 >= 0 && t1 < 0) {
+    } else if (t2 >= grace && t1 < grace) {
         return t2;
     } else {
         return min(t1, t2);
@@ -41,7 +41,7 @@ float smallestPositiveT(const Ray &ray, const Sphere &sphere) {
 
 // returns smallest positive t (ray parameter) if intersection does occur and it is infront of the eye
 // else return -1
-float smallestPositiveT(const Ray &ray, const Ellipsoid &ellipsoid) {
+float smallestPositiveT(const Ray &ray, const Ellipsoid &ellipsoid, float grace) {
     Vector3D d = ray.direction;
     Vector3D e = ray.eye;
     Vector3D cen = ellipsoid.center;
@@ -66,7 +66,7 @@ float smallestPositiveT(const Ray &ray, const Ellipsoid &ellipsoid) {
 
     // ray intersects at one point i.e. t1 == t2
     if (discriminant == 0) {
-        if (t1 >= 0) {
+        if (t1 >= grace) {
             // if t1 == t2 == non-negative return it
             return t1;
         }
@@ -75,11 +75,11 @@ float smallestPositiveT(const Ray &ray, const Ellipsoid &ellipsoid) {
     }
 
     // discriminant > 0 i.e. ray intersects at two points
-    if (t1 < 0 && t2 < 0) {
+    if (t1 < grace && t2 < grace) {
         return -1;
-    } else if (t1 >= 0 && t2 < 0) {
+    } else if (t1 >= grace && t2 < grace) {
         return t1;
-    } else if (t2 >= 0 && t1 < 0) {
+    } else if (t2 >= grace && t1 < grace) {
         return t2;
     } else {
         return min(t1, t2);

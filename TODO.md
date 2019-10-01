@@ -1,7 +1,7 @@
 - [x] Invalid number of args fix
 - [x] Output file name fix
 - [x] Accept empty lines
-- [ ] shadow rays
+- [x] shadow rays
 - [ ] spotlights
 - [ ] light attenuation
 - [ ] soft shadow
