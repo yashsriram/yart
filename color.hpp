@@ -4,7 +4,6 @@
 class Color {
 public:
     float r, g, b;
-
     // this is to easily print a given object to std for debugging
     friend std::ostream &operator<<(std::ostream &, const Color &);
 
@@ -32,7 +31,6 @@ public:
     Color specular;
     float ka, kd, ks;
     int n;
-
     // this is to easily print a given object to std for debugging
     friend std::ostream &operator<<(std::ostream &, const MaterialColor &);
 

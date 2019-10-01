@@ -8,7 +8,6 @@ public:
   Vector3D center;
   float radius;
   MaterialColor materialColor;
-
   // this is to easily print a given object to std for debugging
   friend std::ostream& operator<<(std::ostream&, const Sphere&);
 

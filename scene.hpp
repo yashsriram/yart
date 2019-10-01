@@ -9,6 +9,8 @@ using namespace std;
 
 class Scene {
 public:
+    // this is to easily print a given object to std for debugging
+    friend std::ostream& operator<<(std::ostream&, const Sphere&);
     const string filename;
 
     Vector3D eye;
@@ -25,7 +27,6 @@ public:
 
     vector<Light> lights;
 
-    // Constructor initializes filename
     Scene(const string &filename) : filename(filename),
                                     eye(Vector3D()), viewDir(Vector3D()), upDir(Vector3D()),
                                     vFovDeg(0), imWidth(0), imHeight(0),
@@ -147,7 +148,7 @@ public:
             return false;
         }
 
-        for (auto i : keywordsCheck) {
+        for (const auto& i : keywordsCheck) {
             if (i.second != 1) {
                 cerr << "Syntax error in inputfile \"" << this->filename << "\". Information missing: " << i.first
                      << endl;
@@ -247,18 +248,18 @@ private:
 
     bool readVFov(istringstream &iss) {
         // Value validation
-        float vfov;
-        if (!(iss >> vfov)) {
+        float vFovDeg;
+        if (!(iss >> vFovDeg)) {
             cerr << "Syntax error in inputfile \"" << this->filename << "\". VFov Information missing" << endl;
             return false;
         }
-        if (vfov <= 0 || vfov >= 180) {
+        if (vFovDeg <= 0 || vFovDeg >= 180) {
             cerr << "Syntax error in inputfile \"" << this->filename << "\". VFov is Invalid" << endl;
             return false;
         }
 
         // Setting scene variable
-        this->vFovDeg = vfov;
+        this->vFovDeg = vFovDeg;
 
         return true;
     }
@@ -612,6 +613,5 @@ std::ostream &operator<<(std::ostream &out, const Scene &s) {
     }
     return out;
 }
-
 
 #endif

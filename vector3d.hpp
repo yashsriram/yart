@@ -1,10 +1,8 @@
 #ifndef VECTOR3D_HPP
 #define VECTOR3D_HPP
 
-// Class to manage 3D vectors with methods for various common vector operations 
 class Vector3D {
 public:
-  // x, y, z values of 3D vector
   float x, y, z;
   // this is to easily print a given vector to std for debugging
   friend std::ostream& operator<<(std::ostream&, const Vector3D&);

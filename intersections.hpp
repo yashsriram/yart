@@ -1,5 +1,4 @@
-// returns smallest positive t (ray parameter) if intersection does occur and it is infront of the eye
-// else return -1
+// returns smallest positive t (ray parameter) if intersection does occurs in-front of the eye else returns -1
 float smallestPositiveT(const Ray& ray, const Sphere& sphere) {
     float A = 1; // xd^2 + yd^2 + zd^2 = 1 always
     float B = 2 * (ray.direction.dot(ray.eye) - ray.direction.dot(sphere.center)); // xdxe + ... - xdxc - ...
