@@ -1,6 +1,6 @@
 #include <iostream>
-#include <sstream>
 #include <fstream>
+#include <algorithm>
 #include <math.h>
 #include "vector3d.hpp"
 #include "color.hpp"
@@ -16,51 +16,59 @@ using namespace std;
 #define M_PI 3.1415926535
 #endif
 
-string traceRay(const Ray &ray, const Scene &scene) {
-    int nearestObjIndex = -1;
+// Returns index of smallest non-negative number from vector
+// If all are negative then returns -1
+int smallestNonNegativeIndex(const vector<float> &vector) {
     float minT = -1;
-    MaterialColor nearestObjColor;
+    int ans = -1;
+    for (int i = 0; i < vector.size(); ++i) {
+        float t = vector[i];
+        // t < 0 => prune
+        if (t < 0) {
+            continue;
+        }
+
+        // t >= 0
+        if (ans == -1) {
+            ans = i;
+            minT = t;
+        } else {
+            if (t < minT) {
+                ans = i;
+                minT = t;
+            }
+        }
+    }
+    return ans;
+}
+
+string traceRay(const Ray &ray, const Scene &scene) {
+    vector<float> Ts;
+    int noSpheres = scene.spheres.size();
     // Inspect intersection with all spheres
-    for (int i = 0; i < scene.spheres.size(); ++i) {
-        float t = smallestPositiveT(ray, scene.spheres[i]);
-        if (t >= 0) {
-            if (nearestObjIndex == -1) {
-                nearestObjIndex = i;
-                nearestObjColor = scene.spheres[i].materialColor;
-                minT = t;
-            } else {
-                if (t < minT) {
-                    minT = t;
-                    nearestObjIndex = i;
-                    nearestObjColor = scene.spheres[i].materialColor;
-                }
-            }
-        }
+    for (const auto &sphere : scene.spheres) {
+        float t = smallestPositiveT(ray, sphere);
+        Ts.push_back(t);
     }
-
     // Inspect intersection with all ellipsoids
-    for (int i = 0; i < scene.ellipsoids.size(); ++i) {
-        float t = smallestPositiveT(ray, scene.ellipsoids[i]);
-        if (t >= 0) {
-            if (nearestObjIndex == -1) {
-                nearestObjIndex = i;
-                nearestObjColor = scene.ellipsoids[i].color;
-                minT = t;
-            } else {
-                if (t < minT) {
-                    minT = t;
-                    nearestObjIndex = i;
-                    nearestObjColor = scene.ellipsoids[i].color;
-                }
-            }
+    for (const auto &ellipsoid : scene.ellipsoids) {
+        float t = smallestPositiveT(ray, ellipsoid);
+        Ts.push_back(t);
+    }
+    // Find smallest non-negative t
+    int minTIndex = smallestNonNegativeIndex(Ts);
+
+    if (minTIndex < 0) {
+        // return variant of bg color
+        return (scene.bgColor * ray.direction.dot(scene.viewDir.unit())).to8BitScale();
+    } else {
+        if (minTIndex < noSpheres) {
+            return scene.spheres[minTIndex].materialColor.to8BitScale();
+        } else {
+            return scene.ellipsoids[minTIndex - noSpheres].materialColor.to8BitScale();
         }
     }
 
-    if (nearestObjIndex >= 0) {
-        return nearestObjColor.to8BitScale();
-    } else {
-        return (scene.bgColor * ray.direction.dot(scene.viewDir.unit())).to8BitScale();
-    }
 }
 
 int main(int argc, char *argv[]) {

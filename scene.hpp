@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <sstream>
 #include "light.hpp"
 
 using namespace std;

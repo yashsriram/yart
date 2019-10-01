@@ -15,7 +15,7 @@ public:
         return Color(this->r * t, this->g * t, this->b * t);
     }
 
-    std::string to8BitScale() {
+    std::string to8BitScale() const {
         return std::to_string(int(r * 255))
                + " "
                + std::to_string(int(g * 255))
@@ -40,7 +40,7 @@ public:
     MaterialColor(Color diffusion, Color specular, float ka, float kd, float ks, int n)
             : diffusion(diffusion), specular(specular), ka(ka), kd(kd), ks(ks), n(n) {}
 
-    std::string to8BitScale() {
+    std::string to8BitScale() const {
         return specular.to8BitScale();
     }
 

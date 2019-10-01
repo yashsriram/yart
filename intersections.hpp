@@ -1,12 +1,16 @@
-// returns smallest positive t (ray parameter) if intersection does occurs in-front of the eye else returns -1
+// Returns smallest positive t (ray parameter) if intersection does occurs in-front of the eye else returns -1
 float smallestPositiveT(const Ray &ray, const Sphere &sphere) {
-    float A = 1; // xd^2 + yd^2 + zd^2 = 1 always
-    float B = 2 * (ray.direction.dot(ray.eye) - ray.direction.dot(sphere.center)); // xdxe + ... - xdxc - ...
-    float C = ray.eye.absSquare() + sphere.center.absSquare() - 2 * (ray.eye.dot(sphere.center)) -
-              (sphere.radius * sphere.radius); // xe^2 + ... + xc^2 + ... - 2 * (xe*xc + ...) - rad^2
+    // A = xd^2 + yd^2 + zd^2 = 1
+    float A = 1;
+    // B = xdxe + ... - xdxc - ...
+    float B = 2 * (ray.direction.dot(ray.eye) - ray.direction.dot(sphere.center));
+    // C = xe^2 + ... + xc^2 + ... - 2 * (xe*xc + ...) - rad^2
+    float C = ray.eye.absSquare() + sphere.center.absSquare() - 2 * ray.eye.dot(sphere.center) -
+              sphere.radius * sphere.radius;
     float discriminant = B * B - 4 * A * C;
+
+    // ray does not intersect sphere
     if (discriminant < 0) {
-        // ray doesnot intersect sphere
         return -1;
     }
 
@@ -15,8 +19,8 @@ float smallestPositiveT(const Ray &ray, const Sphere &sphere) {
 
     // ray intersects at one point i.e. t1 == t2
     if (discriminant == 0) {
+        // if t1 == t2 == non-negative return it
         if (t1 >= 0) {
-            // if t1 == t2 == non-negative return it
             return t1;
         }
         // else return -1 to indicate behind eye intersection

@@ -11,6 +11,10 @@ public:
 
     Ray(Vector3D eye, Vector3D direction) : eye(eye), direction(direction) {}
 
+    Vector3D getPoint(float t) {
+        return Vector3D(eye + direction * t);
+    }
+
 };
 
 std::ostream &operator<<(std::ostream &out, const Ray &r) {
