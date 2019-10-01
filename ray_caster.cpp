@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include "vector3d.hpp"
 #include "color.hpp"
 #include "ray.hpp"
@@ -58,14 +58,36 @@ string traceRay(const Ray &ray, const Scene &scene) {
     // Find smallest non-negative t
     int minTIndex = smallestNonNegativeIndex(Ts);
 
+    // No intersection with anything
     if (minTIndex < 0) {
-        // return variant of bg color
+        // Return variant of bg color
         return (scene.bgColor * ray.direction.dot(scene.viewDir.unit())).to8BitScale();
     } else {
+        // Intersection with a sphere
         if (minTIndex < noSpheres) {
-            return scene.spheres[minTIndex].materialColor.to8BitScale();
-        } else {
-            return scene.ellipsoids[minTIndex - noSpheres].materialColor.to8BitScale();
+            Sphere sphere = scene.spheres[minTIndex];
+            MaterialColor color = sphere.materialColor;
+            Vector3D poi = ray.getPoint(Ts[minTIndex]);
+            Vector3D N = (poi - sphere.center).unit();
+            Vector3D V = (scene.eye - poi).unit();
+
+            Color phongColor = color.diffusion * color.ka;
+
+            for (auto &light: scene.lights) {
+                Vector3D Li = light.getL(poi);
+                Vector3D Hi = (Li + V).unit();
+                Color secondTerm = color.diffusion * color.kd * max(0.0, (double) N.dot(Li));
+                Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
+                Color weightedTerm = (secondTerm + thirdTerm) * light.color;
+                phongColor = phongColor + weightedTerm;
+            }
+
+            phongColor.clamp();
+            return phongColor.to8BitScale();
+        }
+        // Intersection with an ellipsoid
+        else {
+            return scene.ellipsoids[minTIndex - noSpheres].materialColor.diffusion.to8BitScale();
         }
     }
 

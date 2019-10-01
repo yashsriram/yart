@@ -68,7 +68,10 @@ public:
             if (!(iss >> keyword)) {
                 continue;
             }
-            if (keyword == "eye") {
+            // Comment
+            if (keyword == "#") {
+                continue;
+            } else if (keyword == "eye") {
                 if (!this->readEye(iss)) {
                     input.close();
                     return false;
@@ -604,7 +607,7 @@ std::ostream &operator<<(std::ostream &out, const Scene &s) {
     out << "Up dir:\t" << s.upDir << endl;
     out << "VFOV:\t" << s.vFovDeg << endl;
     out << "(w, h):\t" << s.imWidth << ", " << s.imHeight << endl;
-    out << "Bg: " << s.bgColor << endl;
+    out << "Bg clr: " << s.bgColor << endl;
     for (const Sphere &sphere: s.spheres) {
         out << sphere << endl;
     }

@@ -11,7 +11,7 @@ public:
 
     Ray(Vector3D eye, Vector3D direction) : eye(eye), direction(direction) {}
 
-    Vector3D getPoint(float t) {
+    Vector3D getPoint(float t) const {
         return Vector3D(eye + direction * t);
     }
 

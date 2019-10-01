@@ -12,11 +12,11 @@ public:
 
     Vector3D(float x, float y, float z) : x(x), y(y), z(z) {}
 
-    Vector3D operator+(Vector3D b) {
+    Vector3D operator+(const Vector3D &b) const {
         return Vector3D(this->x + b.x, this->y + b.y, this->z + b.z);
     }
 
-    Vector3D operator-(Vector3D b) {
+    Vector3D operator-(const Vector3D &b) const {
         return Vector3D(this->x - b.x, this->y - b.y, this->z - b.z);
     }
 
@@ -24,11 +24,11 @@ public:
         return Vector3D(this->x * t, this->y * t, this->z * t);
     }
 
-    float dot(Vector3D b) const {
+    float dot(const Vector3D &b) const {
         return this->x * b.x + this->y * b.y + this->z * b.z;
     }
 
-    Vector3D cross(Vector3D b) const {
+    Vector3D cross(const Vector3D &b) const {
         return Vector3D(this->y * b.z - this->z * b.y, this->z * b.x - this->x * b.z, this->x * b.y - this->y * b.x);
     }
 

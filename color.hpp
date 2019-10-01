@@ -4,6 +4,7 @@
 class Color {
 public:
     float r, g, b;
+
     // this is to easily print a given object to std for debugging
     friend std::ostream &operator<<(std::ostream &, const Color &);
 
@@ -15,6 +16,14 @@ public:
         return Color(this->r * t, this->g * t, this->b * t);
     }
 
+    Color operator+(const Color &B) const {
+        return Color(this->r + B.r, this->g + B.g, this->b + B.b);
+    }
+
+    Color operator*(const Color &B) const {
+        return Color(this->r * B.r, this->g * B.g, this->b * B.b);
+    }
+
     std::string to8BitScale() const {
         return std::to_string(int(r * 255))
                + " "
@@ -23,6 +32,11 @@ public:
                + std::to_string(int(b * 255));
     }
 
+    void clamp() {
+        if (r < 0) { r = 0; } else if (r > 1) { r = 1; }
+        if (g < 0) { g = 0; } else if (g > 1) { g = 1; }
+        if (b < 0) { b = 0; } else if (b > 1) { b = 1; }
+    }
 };
 
 class MaterialColor {
@@ -39,10 +53,6 @@ public:
 
     MaterialColor(Color diffusion, Color specular, float ka, float kd, float ks, int n)
             : diffusion(diffusion), specular(specular), ka(ka), kd(kd), ks(ks), n(n) {}
-
-    std::string to8BitScale() const {
-        return specular.to8BitScale();
-    }
 
 };
 
