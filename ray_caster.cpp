@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cmath>
+#include <utility>
 #include "vector3d.hpp"
 #include "color.hpp"
 #include "ray.hpp"
@@ -42,9 +43,8 @@ int smallestNonNegativeIndex(const vector<float> &vector) {
     return ans;
 }
 
-string traceRay(const Ray &ray, const Scene &scene) {
+pair<int, float> traceRay(const Ray &ray, const Scene &scene) {
     vector<float> Ts;
-    int noSpheres = scene.spheres.size();
     // Inspect intersection with all spheres
     for (const auto &sphere : scene.spheres) {
         float t = smallestPositiveT(ray, sphere);
@@ -58,6 +58,11 @@ string traceRay(const Ray &ray, const Scene &scene) {
     // Find smallest non-negative t
     int minTIndex = smallestNonNegativeIndex(Ts);
 
+    return pair<int, float>(minTIndex, minTIndex < 0 ? -1 : Ts[minTIndex]);
+}
+
+string calculateColor(const Ray& ray, const Scene& scene, int minTIndex, float minT) {
+    int noSpheres = scene.spheres.size();
     // No intersection with anything
     if (minTIndex < 0) {
         // Return variant of bg color
@@ -67,7 +72,7 @@ string traceRay(const Ray &ray, const Scene &scene) {
         if (minTIndex < noSpheres) {
             Sphere sphere = scene.spheres[minTIndex];
             MaterialColor color = sphere.materialColor;
-            Vector3D poi = ray.getPoint(Ts[minTIndex]);
+            Vector3D poi = ray.getPoint(minT);
             Vector3D N = (poi - sphere.center).unit();
             Vector3D V = (scene.eye - poi).unit();
 
@@ -85,12 +90,11 @@ string traceRay(const Ray &ray, const Scene &scene) {
             phongColor.clamp();
             return phongColor.to8BitScale();
         }
-        // Intersection with an ellipsoid
+            // Intersection with an ellipsoid
         else {
             return scene.ellipsoids[minTIndex - noSpheres].materialColor.diffusion.to8BitScale();
         }
     }
-
 }
 
 int main(int argc, char *argv[]) {
@@ -141,7 +145,8 @@ int main(int argc, char *argv[]) {
             // ray from eye to that pixel
             Ray ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             // trace this ray in the scene to produce a color for the pixel
-            string pixelValue = traceRay(ray, scene);
+            pair<int, float> minTIndex_minT = traceRay(ray, scene);
+            string pixelValue = calculateColor(ray, scene, minTIndex_minT.first, minTIndex_minT.second);
             // Keep track of color
             colors[i][j] = pixelValue;
         }

@@ -1,9 +1,8 @@
-# Previous errors
-* Fix parser
-  - [x] Accept empty lines
-  - [ ] Fix ellipsoids
-
-* Clean code
-
-* New assignment
-
+- [x] Invalid number of args fix
+- [x] Output file name fix
+- [x] Accept empty lines
+- [ ] shadow rays
+- [ ] spotlights
+- [ ] light attenuation
+- [ ] soft shadow
+- [ ] Fix ellipsoids
