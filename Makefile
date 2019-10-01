@@ -1,5 +1,5 @@
-all: ray_caster.cpp
-	g++ -std=c++11 ray_caster.cpp -o ray_caster
+all: raytracer.cpp
+	g++ -std=c++11 raytracer.cpp -o raytracer
 
 clean:
-	rm -rf ray_caster
+	rm -rf raytracer
