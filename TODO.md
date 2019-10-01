@@ -3,8 +3,8 @@
 - [x] Accept empty lines
 - [x] shadow rays
 - [x] soft shadow
+- [x] light attenuation
 - [ ] showcase pictures
 - [ ] report
 - [ ] spotlights
-- [ ] light attenuation
 - [ ] Fix ellipsoids
