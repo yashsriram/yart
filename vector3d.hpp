@@ -41,7 +41,9 @@ public:
     }
 
     Vector3D unit() const {
-        return *this * (1 / this->abs());
+        float abs = this->abs();
+        if (abs < 1e-6) { return *this; }
+        else { return *this * (1 / abs); }
     }
 
 };

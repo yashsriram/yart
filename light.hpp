@@ -1,3 +1,11 @@
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+
+float getRand() {
+    return ((float) (rand() % 100) / 100);
+}
+
 class Light {
 public:
     Vector3D vector;
@@ -9,13 +17,14 @@ public:
 
     Light(Vector3D vector, int w, Color color) : vector(vector), type(w), color(color) {}
 
-    Vector3D getL(const Vector3D &poi) const {
+    Vector3D poiToLightUnitVector(const Vector3D &poi, float jitter = 0) const {
         if (type == 0) {
-            return vector * -1;
+            return (vector + Vector3D(getRand(), getRand(), getRand()).unit() * jitter) * -1;
         } else {
-            return (vector - poi).unit();
+            return (vector + Vector3D(getRand(), getRand(), getRand()).unit() * jitter - poi).unit();
         }
     }
+
 };
 
 std::ostream &operator<<(std::ostream &out, const Light &l) {

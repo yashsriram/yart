@@ -2,7 +2,9 @@
 - [x] Output file name fix
 - [x] Accept empty lines
 - [x] shadow rays
+- [x] soft shadow
+- [ ] showcase pictures
+- [ ] report
 - [ ] spotlights
 - [ ] light attenuation
-- [ ] soft shadow
 - [ ] Fix ellipsoids

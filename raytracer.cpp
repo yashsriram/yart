@@ -18,6 +18,8 @@ using namespace std;
 #endif
 
 #define SHADOW_GRACE 1e-4
+#define SOFT_SHADOW_JITTER 0.2
+#define SOFT_SHADOW_NO_SAMPLES 100
 
 // Returns index of smallest non-negative number from vector
 // If all are negative then returns -1
@@ -63,7 +65,29 @@ pair<int, float> traceRay(const Ray &ray, const Scene &scene, float grace = 0) {
     return pair<int, float>(minTIndex, minTIndex < 0 ? -1 : Ts[minTIndex]);
 }
 
-string calculateColor(const Ray& ray, const Scene& scene, int minTIndex, float minT) {
+float calculateShadowFactor(const Vector3D &poi, const Vector3D &Li, const Light &light, const Scene &scene) {
+    float S = 1;
+    Ray shadowRay(poi, Li);
+    pair<int, float> shadow_minTIndex_minT = traceRay(shadowRay, scene, SHADOW_GRACE);
+    // Shadow ray hit something
+    if (shadow_minTIndex_minT.first >= 0) {
+        if (light.type == 0) {
+            // Directional light => Shadow exists
+            S = 0;
+        } else {
+            // Positional light => Check for distance of hit
+            Vector3D hitPoint = shadowRay.getPoint(shadow_minTIndex_minT.second);
+            Vector3D hitVector = hitPoint - poi;
+            Vector3D lightVector = light.vector - poi;
+            if (hitVector.absSquare() < lightVector.absSquare()) {
+                S = 0;
+            }
+        }
+    }
+    return S;
+}
+
+string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float minT) {
     int noSpheres = scene.spheres.size();
     // No intersection with anything
     if (minTIndex < 0) {
@@ -81,28 +105,15 @@ string calculateColor(const Ray& ray, const Scene& scene, int minTIndex, float m
             Color phongColor = color.diffusion * color.ka;
 
             for (auto &light: scene.lights) {
-                Vector3D Li = light.getL(poi);
                 // Shadow factor determination
-                float S = 1;
-                Ray shadowRay(poi, Li);
-                pair<int, float> shadow_minTIndex_minT = traceRay(shadowRay, scene, SHADOW_GRACE);
-                // Shadow ray hit something
-                if (shadow_minTIndex_minT.first >= 0) {
-                    // Directional light => Shadow exists
-                    if (light.type == 0) {
-                        S = 0;
-                    }
-                    // Positional light => Check for distance of hit
-                    else {
-                        Vector3D hitPoint = shadowRay.getPoint(shadow_minTIndex_minT.second);
-                        Vector3D hitVector = hitPoint - poi;
-                        Vector3D lightVector = light.vector - poi;
-                        if (hitVector.absSquare() < lightVector.absSquare()) {
-                            S = 0;
-                        }
-                    }
+                float S = 0;
+                for (int j = 0; j < SOFT_SHADOW_NO_SAMPLES; j++) {
+                    Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
+                    S += calculateShadowFactor(poi, Lj, light, scene);
                 }
+                S = S / SOFT_SHADOW_NO_SAMPLES;
                 // Second and third terms of blinn-phong model
+                Vector3D Li = light.poiToLightUnitVector(poi);
                 Vector3D Hi = (Li + V).unit();
                 Color secondTerm = color.diffusion * color.kd * max(0.0, (double) N.dot(Li));
                 Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
@@ -121,6 +132,9 @@ string calculateColor(const Ray& ray, const Scene& scene, int minTIndex, float m
 }
 
 int main(int argc, char *argv[]) {
+    // Initializing random seed
+    srand(42);
+
     // Restricting number of commandline arguments
     if (argc != 2) {
         cerr << "Usage: " << argv[0] << " <inputfile>" << endl;
