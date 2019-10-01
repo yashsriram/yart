@@ -7,20 +7,19 @@ class Sphere {
 public:
   Vector3D center;
   float radius;
-  MaterialColor color;
+  MaterialColor materialColor;
 
   // this is to easily print a given object to std for debugging
   friend std::ostream& operator<<(std::ostream&, const Sphere&);
 
-  Sphere(): center(Vector3D()), radius(0), color(MaterialColor())  {}
+  Sphere(): center(Vector3D()), radius(0), materialColor(MaterialColor())  {}
 
-  Sphere(Vector3D center, float radius, MaterialColor color): center(center), radius(radius), color(color)  {}
+  Sphere(Vector3D center, float radius, MaterialColor color): center(center), radius(radius), materialColor(color)  {}
 
 };
 
-// this is to easily print a given object in a well-formatted manner to std for debugging
 std::ostream& operator<<(std::ostream &out, const Sphere &s) {
-  out << "center = " << s.center << "\n" << "radius = " << s.radius; 
+  out << "Sphere:" << "\t" << s.center << "\t" << s.radius << "\t" << s.materialColor;
   return out;
 }
 

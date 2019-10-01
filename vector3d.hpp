@@ -47,7 +47,6 @@ public:
 
 };
 
-// this is to easily print a given vector in a well-formatted manner to std for debugging
 std::ostream& operator<<(std::ostream &out, const Vector3D &v) {
   out << "(" << v.x << ", " << v.y << ", " << v.z << ")";
   return out;

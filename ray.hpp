@@ -12,9 +12,8 @@ public:
 
 };
 
-// this is to easily print a given object in a well-formatted manner to std for debugging
 std::ostream& operator<<(std::ostream &out, const Ray &r) {
-  out << "eye = " << r.eye << "\n" << "direction = " << r.direction; 
+  out << "Ray:" << "\t" << r.eye << "\t" << r.direction;
   return out;
 }
 

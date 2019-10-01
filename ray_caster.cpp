@@ -26,13 +26,13 @@ string traceRay(const Ray& ray, const Scene& scene) {
     if (t >= 0) {
       if (nearestObjIndex == -1) {
         nearestObjIndex = i;
-        nearestObjColor = scene.spheres[i].color;
+        nearestObjColor = scene.spheres[i].materialColor;
         minT = t;
       } else {
         if (t < minT) {
           minT = t;
           nearestObjIndex = i;
-          nearestObjColor = scene.spheres[i].color;
+          nearestObjColor = scene.spheres[i].materialColor;
         }
       }
     }
@@ -57,9 +57,9 @@ string traceRay(const Ray& ray, const Scene& scene) {
   }
 
   if (nearestObjIndex >= 0) {
-    return nearestObjColor.print256Scale();
+    return nearestObjColor.to8BitScale();
   } else {
-    return (scene.bgColor * ray.direction.dot(scene.viewDir.unit())).print256Scale();
+    return (scene.bgColor * ray.direction.dot(scene.viewDir.unit())).to8BitScale();
   }
 }
 
@@ -76,6 +76,8 @@ int main(int argc, char *argv[]) {
   if (!scene.readAndValidate()) {
     return -1;
   };
+
+  cout << scene << endl;
 
   // Preliminary calculations
   Vector3D u = scene.viewDir.cross(scene.upDir);

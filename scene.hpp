@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include "light.hpp"
 
 using namespace std;
 
@@ -18,15 +19,17 @@ public:
     float imWidth;
     float imHeight;
 
-    BackgroundColor bgColor;
-    vector <Sphere> spheres;
-    vector <Ellipsoid> ellipsoids;
+    Color bgColor;
+    vector<Sphere> spheres;
+    vector<Ellipsoid> ellipsoids;
+
+    vector<Light> lights;
 
     // Constructor initializes filename
     Scene(const string &filename) : filename(filename),
                                     eye(Vector3D()), viewDir(Vector3D()), upDir(Vector3D()),
                                     vFovDeg(0), imWidth(0), imHeight(0),
-                                    bgColor(BackgroundColor()) {}
+                                    bgColor(Color()) {}
 
     // Reads the scene description and validates it
     // If everything is valid returns true else returns false and prints and error message
@@ -63,43 +66,43 @@ public:
                 continue;
             }
             if (keyword == "eye") {
-                if (!this->validateEye(iss)) {
+                if (!this->readEye(iss)) {
                     input.close();
                     return false;
                 }
                 keywordsCheck[keyword] = 1;
             } else if (keyword == "viewdir") {
-                if (!this->validateViewDir(iss)) {
+                if (!this->readViewDir(iss)) {
                     input.close();
                     return false;
                 }
                 keywordsCheck[keyword] = 1;
             } else if (keyword == "updir") {
-                if (!this->validateUpDir(iss)) {
+                if (!this->readUpDir(iss)) {
                     input.close();
                     return false;
                 }
                 keywordsCheck[keyword] = 1;
             } else if (keyword == "vfov") {
-                if (!this->validateVFov(iss)) {
+                if (!this->readVFov(iss)) {
                     input.close();
                     return false;
                 }
                 keywordsCheck[keyword] = 1;
             } else if (keyword == "imsize") {
-                if (!this->validateImageDim(iss)) {
+                if (!this->readImageDim(iss)) {
                     input.close();
                     return false;
                 }
                 keywordsCheck[keyword] = 1;
             } else if (keyword == "bkgcolor") {
-                if (!this->validateBgColor(iss)) {
+                if (!this->readBgColor(iss)) {
                     input.close();
                     return false;
                 }
                 keywordsCheck[keyword] = 1;
             } else if (keyword == "mtlcolor") {
-                if (!this->validateMtlColor(iss, mtlcolor)) {
+                if (!this->readMtlColor(iss, mtlcolor)) {
                     input.close();
                     return false;
                 }
@@ -111,7 +114,7 @@ public:
                          << "\". Sphere information found without preceeding mtl color" << endl;
                     return false;
                 }
-                if (!this->validateSphere(iss, mtlcolor)) {
+                if (!this->readSphere(iss, mtlcolor)) {
                     input.close();
                     return false;
                 }
@@ -121,7 +124,12 @@ public:
                          << "\". Ellipsoid information found without preceeding mtl color" << endl;
                     return false;
                 }
-                if (!this->validateEllipsoid(iss, mtlcolor)) {
+                if (!this->readEllipsoid(iss, mtlcolor)) {
+                    input.close();
+                    return false;
+                }
+            } else if (keyword == "light") {
+                if (!this->readLight(iss)) {
                     input.close();
                     return false;
                 }
@@ -152,7 +160,7 @@ public:
     }
 
 private:
-    bool validateEye(istringstream &iss) {
+    bool readEye(istringstream &iss) {
         // Value validation
         float x, y, z;
         if (!(iss >> x)) {
@@ -177,7 +185,7 @@ private:
         return true;
     }
 
-    bool validateViewDir(istringstream &iss) {
+    bool readViewDir(istringstream &iss) {
         // Value validation
         float x, y, z;
         if (!(iss >> x)) {
@@ -207,7 +215,7 @@ private:
         return true;
     }
 
-    bool validateUpDir(istringstream &iss) {
+    bool readUpDir(istringstream &iss) {
         // Value validation
         float x, y, z;
         if (!(iss >> x)) {
@@ -237,7 +245,7 @@ private:
         return true;
     }
 
-    bool validateVFov(istringstream &iss) {
+    bool readVFov(istringstream &iss) {
         // Value validation
         float vfov;
         if (!(iss >> vfov)) {
@@ -255,7 +263,7 @@ private:
         return true;
     }
 
-    bool validateImageDim(istringstream &iss) {
+    bool readImageDim(istringstream &iss) {
         // Value validation
         int imWidth, imHeight;
         if (!(iss >> imWidth)) {
@@ -284,7 +292,7 @@ private:
         return true;
     }
 
-    bool validateBgColor(istringstream &iss) {
+    bool readBgColor(istringstream &iss) {
         // Value validation
         float r, g, b;
         if (!(iss >> r)) {
@@ -319,152 +327,289 @@ private:
         }
 
         // Setting scene variable
-        this->bgColor = BackgroundColor(r, g, b);
+        this->bgColor = Color(r, g, b);
 
         return true;
     }
 
-    bool validateMtlColor(istringstream &iss, MaterialColor &color) {
-        float r, g, b;
-        if (!(iss >> r)) {
+    bool readMtlColor(istringstream &iss, MaterialColor &color) {
+        float dr, dg, db, sr, sg, sb, ka, kd, ks;
+        int n;
+        if (!(iss >> dr)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Material color r-coordinate Information missing" << endl;
+                 << "\". Material color dr missing" << endl;
             return false;
         }
-        if (!(iss >> g)) {
+        if (!(iss >> dg)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Material color g-coordinate Information missing" << endl;
+                 << "\". Material color dg missing" << endl;
             return false;
         }
-        if (!(iss >> b)) {
+        if (!(iss >> db)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Material color b-coordinate Information missing" << endl;
+                 << "\". Material color db missing" << endl;
             return false;
         }
-        if (r < 0 || r > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color r is not between 0 and 1"
+        if (!(iss >> sr)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Material color sr missing" << endl;
+            return false;
+        }
+        if (!(iss >> sg)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Material color sg missing" << endl;
+            return false;
+        }
+        if (!(iss >> sb)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Material color sb missing" << endl;
+            return false;
+        }
+        if (!(iss >> ka)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Material color ka missing" << endl;
+            return false;
+        }
+        if (!(iss >> kd)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Material color kd missing" << endl;
+            return false;
+        }
+        if (!(iss >> ks)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Material color ks missing" << endl;
+            return false;
+        }
+        if (!(iss >> n)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Material color n missing" << endl;
+            return false;
+        }
+        if (dr < 0 || dr > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color dr is not between 0 and 1"
                  << endl;
             return false;
         }
-        if (g < 0 || g > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color g is not between 0 and 1"
+        if (dg < 0 || dg > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color dg is not between 0 and 1"
                  << endl;
             return false;
         }
-        if (b < 0 || b > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color b is not between 0 and 1"
+        if (db < 0 || db > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color db is not between 0 and 1"
                  << endl;
+            return false;
+        }
+        if (sr < 0 || sr > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color sr is not between 0 and 1"
+                 << endl;
+            return false;
+        }
+        if (sg < 0 || sg > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color sg is not between 0 and 1"
+                 << endl;
+            return false;
+        }
+        if (sb < 0 || sb > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color sb is not between 0 and 1"
+                 << endl;
+            return false;
+        }
+        if (ka < 0 || ka > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color ka is not between 0 and 1"
+                 << endl;
+            return false;
+        }
+        if (kd < 0 || kd > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color kd is not between 0 and 1"
+                 << endl;
+            return false;
+        }
+        if (ks < 0 || ks > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color ks is not between 0 and 1"
+                 << endl;
+            return false;
+        }
+        if (n < 0) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color n is negative" << endl;
             return false;
         }
         // update state variable material color
-        color.r = r;
-        color.g = g;
-        color.b = b;
+        color = MaterialColor(Color(dr, dg, db), Color(sr, sg, sb), ka, kd, ks, n);
 
         return true;
     }
 
-    bool validateSphere(istringstream &iss, MaterialColor &color) {
+    bool readSphere(istringstream &iss, MaterialColor &color) {
         float x, y, z, rad;
         if (!(iss >> x)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Sphere information x-coordinate Information missing" << endl;
+                 << "\". Sphere x-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> y)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Sphere information y-coordinate Information missing" << endl;
+                 << "\". Sphere y-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> z)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Sphere information z-coordinate Information missing" << endl;
+                 << "\". Sphere z-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> rad)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Sphere information radius Information missing" << endl;
+                 << "\". Sphere radius missing" << endl;
             return false;
         }
         if (rad <= 0) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Sphere information radius is non-positive"
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Sphere radius is non-positive"
                  << endl;
             return false;
         }
 
         // Setting scene variable
-        this->spheres.push_back(Sphere(Vector3D(x, y, z), rad, color));
+        this->spheres.emplace_back(Vector3D(x, y, z), rad, color);
 
         return true;
     }
 
-    bool validateEllipsoid(istringstream &iss, MaterialColor &color) {
+    bool readEllipsoid(istringstream &iss, MaterialColor &color) {
         float x, y, z, rx, ry, rz;
         if (!(iss >> x)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Ellipsoid information x-coordinate Information missing" << endl;
+                 << "\". Ellipsoid x-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> y)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Ellipsoid information y-coordinate Information missing" << endl;
+                 << "\". Ellipsoid y-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> z)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Ellipsoid information z-coordinate Information missing" << endl;
+                 << "\". Ellipsoid z-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> rx)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Ellipsoid information radius Information missing" << endl;
+                 << "\". Ellipsoid radius missing" << endl;
             return false;
         }
         if (!(iss >> ry)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Ellipsoid information radius Information missing" << endl;
+                 << "\". Ellipsoid radius missing" << endl;
             return false;
         }
         if (!(iss >> rz)) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Ellipsoid information radius Information missing" << endl;
+                 << "\". Ellipsoid radius missing" << endl;
             return false;
         }
         if (rx <= 0) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Ellipsoid information radius is non-positive" << endl;
+                 << "\". Ellipsoid radius is non-positive" << endl;
             return false;
         }
         if (ry <= 0) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Ellipsoid information radius is non-positive" << endl;
+                 << "\". Ellipsoid radius is non-positive" << endl;
             return false;
         }
         if (rz <= 0) {
             cerr << "Syntax error in inputfile \"" << this->filename
-                 << "\". Ellipsoid information radius is non-positive" << endl;
+                 << "\". Ellipsoid radius is non-positive" << endl;
             return false;
         }
 
         // Setting scene variable
-        this->ellipsoids.push_back(Ellipsoid(Vector3D(x, y, z), rx, ry, rz, color));
+        this->ellipsoids.emplace_back(Vector3D(x, y, z), rx, ry, rz, color);
 
         return true;
     }
 
+    bool readLight(istringstream &iss) {
+        float r, g, b, x, y, z;
+        int w;
+        if (!(iss >> x)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Light x missing" << endl;
+            return false;
+        }
+        if (!(iss >> y)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Light y missing" << endl;
+            return false;
+        }
+        if (!(iss >> z)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Light z missing" << endl;
+            return false;
+        }
+        if (!(iss >> w)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Light w missing" << endl;
+            return false;
+        }
+        if (!(iss >> r)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Light r missing" << endl;
+            return false;
+        }
+        if (!(iss >> g)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Light g missing" << endl;
+            return false;
+        }
+        if (!(iss >> b)) {
+            cerr << "Syntax error in inputfile \"" << this->filename
+                 << "\". Light b missing" << endl;
+            return false;
+        }
+        if (r < 0 || r > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Light r is not between 0 and 1"
+                 << endl;
+            return false;
+        }
+        if (g < 0 || g > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Light g is not between 0 and 1"
+                 << endl;
+            return false;
+        }
+        if (b < 0 || b > 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Light b is not between 0 and 1"
+                 << endl;
+            return false;
+        }
+        if (w != 0 && w != 1) {
+            cerr << "Syntax error in inputfile \"" << this->filename << "\". Light w is invalid" << endl;
+            return false;
+        }
+        // update state variable lights
+        Light light(Vector3D(x, y, z), w, Color(r, g, b));
+        this->lights.emplace_back(light);
+
+        return true;
+    }
 };
 
 // this is to easily print a given object in a well-formatted manner to std for debugging
-std::ostream& operator<<(std::ostream &out, const Scene &s) {
-     out << s.eye << endl;
-     out << s.viewDir << endl;
-     out << s.upDir << endl;
-     out << s.vFovDeg << endl;
-     out << s.imWidth << s.imHeight << endl;
-     out << s.bgColor << endl;
-     for (const Sphere & sphere: s.spheres) {
-       out << sphere << endl;
-     }
+std::ostream &operator<<(std::ostream &out, const Scene &s) {
+    out << "Eye:\t" << s.eye << endl;
+    out << "V dir:\t" << s.viewDir << endl;
+    out << "Up dir:\t" << s.upDir << endl;
+    out << "VFOV:\t" << s.vFovDeg << endl;
+    out << "(w, h):\t" << s.imWidth << ", " << s.imHeight << endl;
+    out << "Bg: " << s.bgColor << endl;
+    for (const Sphere &sphere: s.spheres) {
+        out << sphere << endl;
+    }
+    for (const Ellipsoid &ellipsoid: s.ellipsoids) {
+        out << ellipsoid << endl;
+    }
+    for (const Light &light: s.lights) {
+        out << light << endl;
+    }
     return out;
 }
 
