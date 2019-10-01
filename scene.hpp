@@ -10,7 +10,8 @@ using namespace std;
 class Scene {
 public:
     // this is to easily print a given object to std for debugging
-    friend std::ostream& operator<<(std::ostream&, const Sphere&);
+    friend std::ostream &operator<<(std::ostream &, const Sphere &);
+
     const string filename;
 
     Vector3D eye;
@@ -111,7 +112,7 @@ public:
                 mtlcolorExists = true;
             } else if (keyword == "sphere") {
                 if (!mtlcolorExists) {
-                    cerr << "Syntax error in inputfile \"" << this->filename
+                    cerr << "Syntax error in input file \"" << this->filename
                          << "\". Sphere information found without preceeding mtl color" << endl;
                     return false;
                 }
@@ -121,7 +122,7 @@ public:
                 }
             } else if (keyword == "ellipsoid") {
                 if (!mtlcolorExists) {
-                    cerr << "Syntax error in inputfile \"" << this->filename
+                    cerr << "Syntax error in input file \"" << this->filename
                          << "\". Ellipsoid information found without preceeding mtl color" << endl;
                     return false;
                 }
@@ -135,22 +136,22 @@ public:
                     return false;
                 }
             } else {
-                cerr << "Syntax error in inputfile \"" << this->filename << "\". Invalid keyword" << endl;
+                cerr << "Syntax error in input file \"" << this->filename << "\". Invalid keyword" << endl;
                 return false;
             }
         }
 
         // Parallel view and up vector check
         if (this->upDir.dot(this->viewDir) == 1 || this->upDir.dot(this->viewDir) == -1) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Parallel/Anti-parallel up and view directions! " << endl;
             input.close();
             return false;
         }
 
-        for (const auto& i : keywordsCheck) {
+        for (const auto &i : keywordsCheck) {
             if (i.second != 1) {
-                cerr << "Syntax error in inputfile \"" << this->filename << "\". Information missing: " << i.first
+                cerr << "Syntax error in input file \"" << this->filename << "\". Information missing: " << i.first
                      << endl;
                 return false;
             }
@@ -165,17 +166,17 @@ private:
         // Value validation
         float x, y, z;
         if (!(iss >> x)) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Eye x-coordinate Information missing"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Eye x-coordinate Information missing"
                  << endl;
             return false;
         }
         if (!(iss >> y)) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Eye y-coordinate Information missing"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Eye y-coordinate Information missing"
                  << endl;
             return false;
         }
         if (!(iss >> z)) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Eye z-coordinate Information missing"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Eye z-coordinate Information missing"
                  << endl;
             return false;
         }
@@ -190,23 +191,23 @@ private:
         // Value validation
         float x, y, z;
         if (!(iss >> x)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". View Direction x-coordinate Information missing" << endl;
             return false;
         }
         if (!(iss >> y)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". View Direction y-coordinate Information missing" << endl;
             return false;
         }
         if (!(iss >> z)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". View Direction z-coordinate Information missing" << endl;
             return false;
         }
         Vector3D viewDir = Vector3D(x, y, z);
         if (viewDir.abs() - 1 > 1e-6) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". View Direction is not unit vector" << endl;
+            cerr << "Syntax error in input file \"" << this->filename << "\". View Direction is not unit vector" << endl;
             return false;
         }
 
@@ -220,23 +221,23 @@ private:
         // Value validation
         float x, y, z;
         if (!(iss >> x)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Up Direction x-coordinate Information missing" << endl;
             return false;
         }
         if (!(iss >> y)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Up Direction y-coordinate Information missing" << endl;
             return false;
         }
         if (!(iss >> z)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Up Direction z-coordinate Information missing" << endl;
             return false;
         }
         Vector3D upDir = Vector3D(x, y, z);
         if (upDir.abs() - 1 > 1e-6) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Up Direction is not unit vector" << endl;
+            cerr << "Syntax error in input file \"" << this->filename << "\". Up Direction is not unit vector" << endl;
             return false;
         }
 
@@ -250,11 +251,11 @@ private:
         // Value validation
         float vFovDeg;
         if (!(iss >> vFovDeg)) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". VFov Information missing" << endl;
+            cerr << "Syntax error in input file \"" << this->filename << "\". VFov Information missing" << endl;
             return false;
         }
         if (vFovDeg <= 0 || vFovDeg >= 180) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". VFov is Invalid" << endl;
+            cerr << "Syntax error in input file \"" << this->filename << "\". VFov is Invalid" << endl;
             return false;
         }
 
@@ -268,21 +269,21 @@ private:
         // Value validation
         int imWidth, imHeight;
         if (!(iss >> imWidth)) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Image dimensions width Information missing"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Image dimensions width Information missing"
                  << endl;
             return false;
         }
         if (!(iss >> imHeight)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Image dimensions height Information missing" << endl;
             return false;
         }
         if (imWidth <= 0) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Image dimensions width is Invalid" << endl;
+            cerr << "Syntax error in input file \"" << this->filename << "\". Image dimensions width is Invalid" << endl;
             return false;
         }
         if (imHeight <= 0) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Image dimensions width is Invalid" << endl;
+            cerr << "Syntax error in input file \"" << this->filename << "\". Image dimensions width is Invalid" << endl;
             return false;
         }
 
@@ -297,32 +298,32 @@ private:
         // Value validation
         float r, g, b;
         if (!(iss >> r)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Background color r-coordinate Information missing" << endl;
             return false;
         }
         if (!(iss >> g)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Background color g-coordinate Information missing" << endl;
             return false;
         }
         if (!(iss >> b)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Background color b-coordinate Information missing" << endl;
             return false;
         }
         if (r < 0 || r > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Background color r is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Background color r is not between 0 and 1"
                  << endl;
             return false;
         }
         if (g < 0 || g > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Background color g is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Background color g is not between 0 and 1"
                  << endl;
             return false;
         }
         if (b < 0 || b > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Background color b is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Background color b is not between 0 and 1"
                  << endl;
             return false;
         }
@@ -337,102 +338,102 @@ private:
         float dr, dg, db, sr, sg, sb, ka, kd, ks;
         int n;
         if (!(iss >> dr)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color dr missing" << endl;
             return false;
         }
         if (!(iss >> dg)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color dg missing" << endl;
             return false;
         }
         if (!(iss >> db)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color db missing" << endl;
             return false;
         }
         if (!(iss >> sr)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color sr missing" << endl;
             return false;
         }
         if (!(iss >> sg)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color sg missing" << endl;
             return false;
         }
         if (!(iss >> sb)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color sb missing" << endl;
             return false;
         }
         if (!(iss >> ka)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color ka missing" << endl;
             return false;
         }
         if (!(iss >> kd)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color kd missing" << endl;
             return false;
         }
         if (!(iss >> ks)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color ks missing" << endl;
             return false;
         }
         if (!(iss >> n)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Material color n missing" << endl;
             return false;
         }
         if (dr < 0 || dr > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color dr is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color dr is not between 0 and 1"
                  << endl;
             return false;
         }
         if (dg < 0 || dg > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color dg is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color dg is not between 0 and 1"
                  << endl;
             return false;
         }
         if (db < 0 || db > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color db is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color db is not between 0 and 1"
                  << endl;
             return false;
         }
         if (sr < 0 || sr > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color sr is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color sr is not between 0 and 1"
                  << endl;
             return false;
         }
         if (sg < 0 || sg > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color sg is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color sg is not between 0 and 1"
                  << endl;
             return false;
         }
         if (sb < 0 || sb > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color sb is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color sb is not between 0 and 1"
                  << endl;
             return false;
         }
         if (ka < 0 || ka > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color ka is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color ka is not between 0 and 1"
                  << endl;
             return false;
         }
         if (kd < 0 || kd > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color kd is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color kd is not between 0 and 1"
                  << endl;
             return false;
         }
         if (ks < 0 || ks > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color ks is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color ks is not between 0 and 1"
                  << endl;
             return false;
         }
         if (n < 0) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Material color n is negative" << endl;
+            cerr << "Syntax error in input file \"" << this->filename << "\". Material color n is negative" << endl;
             return false;
         }
         // update state variable material color
@@ -444,27 +445,27 @@ private:
     bool readSphere(istringstream &iss, MaterialColor &color) {
         float x, y, z, rad;
         if (!(iss >> x)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Sphere x-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> y)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Sphere y-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> z)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Sphere z-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> rad)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Sphere radius missing" << endl;
             return false;
         }
         if (rad <= 0) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Sphere radius is non-positive"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Sphere radius is non-positive"
                  << endl;
             return false;
         }
@@ -478,47 +479,47 @@ private:
     bool readEllipsoid(istringstream &iss, MaterialColor &color) {
         float x, y, z, rx, ry, rz;
         if (!(iss >> x)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Ellipsoid x-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> y)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Ellipsoid y-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> z)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Ellipsoid z-coordinate missing" << endl;
             return false;
         }
         if (!(iss >> rx)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Ellipsoid radius missing" << endl;
             return false;
         }
         if (!(iss >> ry)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Ellipsoid radius missing" << endl;
             return false;
         }
         if (!(iss >> rz)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Ellipsoid radius missing" << endl;
             return false;
         }
         if (rx <= 0) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Ellipsoid radius is non-positive" << endl;
             return false;
         }
         if (ry <= 0) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Ellipsoid radius is non-positive" << endl;
             return false;
         }
         if (rz <= 0) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Ellipsoid radius is non-positive" << endl;
             return false;
         }
@@ -533,57 +534,57 @@ private:
         float r, g, b, x, y, z;
         int w;
         if (!(iss >> x)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Light x missing" << endl;
             return false;
         }
         if (!(iss >> y)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Light y missing" << endl;
             return false;
         }
         if (!(iss >> z)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Light z missing" << endl;
             return false;
         }
         if (!(iss >> w)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Light w missing" << endl;
             return false;
         }
         if (!(iss >> r)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Light r missing" << endl;
             return false;
         }
         if (!(iss >> g)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Light g missing" << endl;
             return false;
         }
         if (!(iss >> b)) {
-            cerr << "Syntax error in inputfile \"" << this->filename
+            cerr << "Syntax error in input file \"" << this->filename
                  << "\". Light b missing" << endl;
             return false;
         }
         if (r < 0 || r > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Light r is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Light r is not between 0 and 1"
                  << endl;
             return false;
         }
         if (g < 0 || g > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Light g is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Light g is not between 0 and 1"
                  << endl;
             return false;
         }
         if (b < 0 || b > 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Light b is not between 0 and 1"
+            cerr << "Syntax error in input file \"" << this->filename << "\". Light b is not between 0 and 1"
                  << endl;
             return false;
         }
         if (w != 0 && w != 1) {
-            cerr << "Syntax error in inputfile \"" << this->filename << "\". Light w is invalid" << endl;
+            cerr << "Syntax error in input file \"" << this->filename << "\". Light w is invalid" << endl;
             return false;
         }
         // update state variable lights
@@ -596,6 +597,7 @@ private:
 
 // this is to easily print a given object in a well-formatted manner to std for debugging
 std::ostream &operator<<(std::ostream &out, const Scene &s) {
+    out << "==== Scene ====" << endl;
     out << "Eye:\t" << s.eye << endl;
     out << "V dir:\t" << s.viewDir << endl;
     out << "Up dir:\t" << s.upDir << endl;

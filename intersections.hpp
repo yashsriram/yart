@@ -1,8 +1,9 @@
 // returns smallest positive t (ray parameter) if intersection does occurs in-front of the eye else returns -1
-float smallestPositiveT(const Ray& ray, const Sphere& sphere) {
+float smallestPositiveT(const Ray &ray, const Sphere &sphere) {
     float A = 1; // xd^2 + yd^2 + zd^2 = 1 always
     float B = 2 * (ray.direction.dot(ray.eye) - ray.direction.dot(sphere.center)); // xdxe + ... - xdxc - ...
-    float C = ray.eye.absSquare() + sphere.center.absSquare() - 2 * (ray.eye.dot(sphere.center)) - (sphere.radius * sphere.radius); // xe^2 + ... + xc^2 + ... - 2 * (xe*xc + ...) - rad^2
+    float C = ray.eye.absSquare() + sphere.center.absSquare() - 2 * (ray.eye.dot(sphere.center)) -
+              (sphere.radius * sphere.radius); // xe^2 + ... + xc^2 + ... - 2 * (xe*xc + ...) - rad^2
     float discriminant = B * B - 4 * A * C;
     if (discriminant < 0) {
         // ray doesnot intersect sphere
@@ -36,7 +37,7 @@ float smallestPositiveT(const Ray& ray, const Sphere& sphere) {
 
 // returns smallest positive t (ray parameter) if intersection does occur and it is infront of the eye
 // else return -1
-float smallestPositiveT(const Ray& ray, const Ellipsoid& ellipsoid) {
+float smallestPositiveT(const Ray &ray, const Ellipsoid &ellipsoid) {
     Vector3D d = ray.direction;
     Vector3D e = ray.eye;
     Vector3D cen = ellipsoid.center;
@@ -44,7 +45,8 @@ float smallestPositiveT(const Ray& ray, const Ellipsoid& ellipsoid) {
     float b = ellipsoid.ry;
     float c = ellipsoid.rz;
     float A = (d.x / a) * (d.x / a) + (d.y / b) * (d.y / b) + (d.z / c) * (d.z / c);
-    float B = 2 * (((e.x * d.x - e.x * cen.x) / (a * a)) + ((e.y * d.y - e.y * cen.y) / (b * b)) + ((e.z * d.z - e.z * cen.z) / (c * c)));
+    float B = 2 * (((e.x * d.x - e.x * cen.x) / (a * a)) + ((e.y * d.y - e.y * cen.y) / (b * b)) +
+                   ((e.z * d.z - e.z * cen.z) / (c * c)));
     float C = (cen.x / a) * (cen.x / a) + (cen.y / b) * (cen.y / b) + (cen.z / c) * (cen.z / c)
               + (e.x / a) * (e.x / a) + (e.y / b) * (e.y / b) + (e.z / c) * (e.z / c)
               - 2 * ((e.x * cen.x / (a * a)) + (e.y * cen.y / (b * b)) + (e.z * cen.z / (c * c)))
