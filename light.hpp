@@ -19,7 +19,7 @@ public:
 
     Vector3D poiToLightUnitVector(const Vector3D &poi, float jitter = 0) const {
         if (type == 0) {
-            return (vector + Vector3D(getRand(), getRand(), getRand()).unit() * jitter) * -1;
+            return (vector + Vector3D(getRand(), getRand(), getRand()).unit() * jitter * 1e-1) * -1;
         } else {
             return (vector + Vector3D(getRand(), getRand(), getRand()).unit() * jitter - poi).unit();
         }
