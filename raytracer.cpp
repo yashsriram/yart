@@ -18,11 +18,8 @@ using namespace std;
 #endif
 
 #define SHADOW_GRACE 1e-4
-#define SOFT_SHADOW_JITTER 0.2
-#define SOFT_SHADOW_NO_SAMPLES 100
-#define C1 1
-#define C2 0.1
-#define C3 0.01
+#define SOFT_SHADOW_JITTER 0
+#define SOFT_SHADOW_NO_SAMPLES 1
 
 // Returns index of smallest non-negative number from vector
 // If all are negative then returns -1
@@ -120,12 +117,7 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
                 Vector3D Hi = (Li + V).unit();
                 Color secondTerm = color.diffusion * color.kd * max(0.0, (double) N.dot(Li));
                 Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
-                float attenuation = 1 ;
-                if (light.type == 1) {
-                    float d = (poi - light.vector).abs();
-                    attenuation = 1 / (C1 + C2 * d + C3 * d * d);
-                }
-                Color weightedTerm = (secondTerm + thirdTerm) * light.color * S * attenuation;
+                Color weightedTerm = (secondTerm + thirdTerm) * light.color * S;
                 phongColor = phongColor + weightedTerm;
             }
 

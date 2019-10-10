@@ -3,7 +3,7 @@ ray_caster
 raytracer
 showcase.ppm
 tags
-assignment1bF19.pdf
-grading-criteria-1b.pdf
+*.pdf
+*.pdf
 .idea
 cmake-build-debug
