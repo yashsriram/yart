@@ -140,8 +140,8 @@ public:
                     return false;
                 }
             } else {
-                cerr << "Syntax error in input file \"" << this->filename << "\". Invalid keyword" << endl;
-                return false;
+                cerr << "Syntax error in input file \"" << this->filename << "\". Invalid keyword found: " << keyword << ". Ignoring it" << endl;
+                continue;
             }
         }
 
