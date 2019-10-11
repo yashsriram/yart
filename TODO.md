@@ -4,7 +4,5 @@
 - [x] shadow rays
 - [x] soft shadow
 - [x] light attenuation
-- [ ] showcase pictures
-- [ ] report
-- [ ] spotlights
-- [ ] Fix ellipsoids
+- [x] showcase pictures
+- [x] report

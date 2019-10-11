@@ -3,13 +3,13 @@
 #include <algorithm>
 #include <cmath>
 #include <utility>
-#include "vector3d.hpp"
-#include "color.hpp"
-#include "ray.hpp"
-#include "sphere.hpp"
-#include "ellipsoid.hpp"
-#include "scene.hpp"
-#include "intersections.hpp"
+#include "include/vector3d.hpp"
+#include "include/color.hpp"
+#include "include/ray.hpp"
+#include "include/sphere.hpp"
+#include "include/ellipsoid.hpp"
+#include "include/scene.hpp"
+#include "include/intersections.hpp"
 
 using namespace std;
 
