@@ -158,13 +158,13 @@ int main(int argc, char *argv[]) {
     float d = scene.imHeight / (2 * tan(scene.vFovDeg * M_PI / 360));
 
     Vector3D imageCenter = scene.eye + scene.viewDir.unit() * d;
-    Vector3D ul = imageCenter - u * (scene.imWidth / 2) + v * (scene.imHeight / 2);
-    Vector3D ur = imageCenter + u * (scene.imWidth / 2) + v * (scene.imHeight / 2);
-    Vector3D ll = imageCenter - u * (scene.imWidth / 2) - v * (scene.imHeight / 2);
-    Vector3D lr = imageCenter + u * (scene.imWidth / 2) - v * (scene.imHeight / 2);
+    Vector3D ul = imageCenter - u * ((float) scene.imWidth / 2) + v * ((float) scene.imHeight / 2);
+    Vector3D ur = imageCenter + u * ((float) scene.imWidth / 2) + v * ((float) scene.imHeight / 2);
+    Vector3D ll = imageCenter - u * ((float) scene.imWidth / 2) - v * ((float) scene.imHeight / 2);
+    Vector3D lr = imageCenter + u * ((float) scene.imWidth / 2) - v * ((float) scene.imHeight / 2);
 
-    Vector3D delWidth = (ur - ul) * (1 / (scene.imWidth - 1));
-    Vector3D delHeight = (ll - ul) * (1 / (scene.imHeight - 1));
+    Vector3D delWidth = (ur - ul) * (1 / ((float) scene.imWidth - 1));
+    Vector3D delHeight = (ll - ul) * (1 / ((float) scene.imHeight - 1));
 
     // Initialize pixel array for output image
     vector<vector<string> > colors;

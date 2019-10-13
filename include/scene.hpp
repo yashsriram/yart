@@ -15,15 +15,16 @@ public:
 
     const string filename;
 
+    // Scene critical
     Vector3D eye;
     Vector3D viewDir;
     Vector3D upDir;
-
     float vFovDeg;
-    float imWidth;
-    float imHeight;
-
+    int imWidth;
+    int imHeight;
     Color bgColor;
+
+    // Scene optional
     vector<Sphere> spheres;
     vector<Ellipsoid> ellipsoids;
 
@@ -210,17 +211,17 @@ private:
 
     bool parseVFov(istringstream &iss) {
         // Value validation
-        float vFovDeg;
-        if (!(iss >> vFovDeg)) {
+        float _vFovDeg;
+        if (!(iss >> _vFovDeg)) {
             cerr << "VFov incomplete" << endl;
             return false;
         }
-        if (vFovDeg <= 0 || vFovDeg >= 180) {
+        if (_vFovDeg <= 0 || _vFovDeg >= 180) {
             cerr << "VFov is Invalid" << endl;
             return false;
         }
         // Setting scene variable
-        this->vFovDeg = vFovDeg;
+        this->vFovDeg = _vFovDeg;
         return true;
     }
 
