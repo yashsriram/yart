@@ -19,11 +19,11 @@ using namespace std;
 
 #define SHADOW_GRACE 1e-4
 #define SOFT_SHADOW_JITTER 0
-#define SOFT_SHADOW_NO_SAMPLES 1
+#define NUM_SHADOW_RAYS_PER_POI 1
 
 // Returns index of smallest non-negative number from vector
 // If all are negative then returns -1
-int smallestNonNegativeIndex(const vector<float> &vector) {
+int indexOfSmallestNonNegative(const vector<float> &vector) {
     float minT = -1;
     int ans = -1;
     for (int i = 0; i < vector.size(); ++i) {
@@ -47,26 +47,31 @@ int smallestNonNegativeIndex(const vector<float> &vector) {
     return ans;
 }
 
+// Returns global index of object the ray first hits (in front of the eye) and corresponding T parameter of the hit
+// If ray does not hit any object both index and T parameter are returned -1
 pair<int, float> traceRay(const Ray &ray, const Scene &scene, float grace = 0) {
     vector<float> Ts;
     // Inspect intersection with all spheres
     for (const auto &sphere : scene.spheres) {
-        float t = smallestPositiveT(ray, sphere, grace);
+        float t = smallestNonNegativeT(ray, sphere, grace);
         Ts.push_back(t);
     }
     // Inspect intersection with all ellipsoids
     for (const auto &ellipsoid : scene.ellipsoids) {
-        float t = smallestPositiveT(ray, ellipsoid, grace);
+        float t = smallestNonNegativeT(ray, ellipsoid, grace);
         Ts.push_back(t);
     }
     // Find smallest non-negative t
-    int minTIndex = smallestNonNegativeIndex(Ts);
+    int minTIndex = indexOfSmallestNonNegative(Ts);
 
     return pair<int, float>(minTIndex, minTIndex < 0 ? -1 : Ts[minTIndex]);
 }
 
-float calculateShadowFactor(const Vector3D &poi, const Vector3D &Li, const Light &light, const Scene &scene) {
-    float S = 1;
+// Given point of intersection, unit direction to light source, light and scene
+// Calculates if there is a shadow cast on point of intersection by the light source
+// By casting a shadow ray from poi in unit direction to light source
+int isUnderShadow(const Vector3D &poi, const Vector3D &Li, const Light &light, const Scene &scene) {
+    int S = 1;
     Ray shadowRay(poi, Li);
     pair<int, float> shadow_minTIndex_minT = traceRay(shadowRay, scene, SHADOW_GRACE);
     // Shadow ray hit something
@@ -87,6 +92,7 @@ float calculateShadowFactor(const Vector3D &poi, const Vector3D &Li, const Light
     return S;
 }
 
+// Given ray, scene and intersecting object and point returns appropriate color to fill in the corresponding pixel of output image
 string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float minT) {
     int noSpheres = scene.spheres.size();
     // No intersection with anything
@@ -107,11 +113,12 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
             for (auto &light: scene.lights) {
                 // Shadow factor determination
                 float S = 0;
-                for (int j = 0; j < SOFT_SHADOW_NO_SAMPLES; j++) {
+                for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
                     Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
-                    S += calculateShadowFactor(poi, Lj, light, scene);
+                    S += (float) isUnderShadow(poi, Lj, light, scene);
                 }
-                S = S / SOFT_SHADOW_NO_SAMPLES;
+                S = S / NUM_SHADOW_RAYS_PER_POI;
+
                 // Second and third terms of blinn-phong model
                 Vector3D Li = light.poiToLightUnitVector(poi);
                 Vector3D Hi = (Li + V).unit();

@@ -1,5 +1,5 @@
 // Returns smallest positive t (ray parameter) if intersection does occurs in-front of the eye else returns -1
-float smallestPositiveT(const Ray &ray, const Sphere &sphere, float grace) {
+float smallestNonNegativeT(const Ray &ray, const Sphere &sphere, float grace) {
     // A = xd^2 + yd^2 + zd^2 = 1
     float A = 1;
     // B = xdxe + ... - xdxc - ...
@@ -41,7 +41,7 @@ float smallestPositiveT(const Ray &ray, const Sphere &sphere, float grace) {
 
 // returns smallest positive t (ray parameter) if intersection does occur and it is infront of the eye
 // else return -1
-float smallestPositiveT(const Ray &ray, const Ellipsoid &ellipsoid, float grace) {
+float smallestNonNegativeT(const Ray &ray, const Ellipsoid &ellipsoid, float grace) {
     Vector3D d = ray.direction;
     Vector3D e = ray.eye;
     Vector3D cen = ellipsoid.center;
