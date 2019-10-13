@@ -12,6 +12,10 @@ public:
 
     Vector3D(float x, float y, float z) : x(x), y(y), z(z) {}
 
+    bool operator==(const Vector3D &b) const {
+        return this->x == b.x && this->y == b.y && this->z == b.z;
+    }
+
     Vector3D operator+(const Vector3D &b) const {
         return Vector3D(this->x + b.x, this->y + b.y, this->z + b.z);
     }

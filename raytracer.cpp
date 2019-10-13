@@ -8,6 +8,7 @@
 #include "include/ray.hpp"
 #include "include/sphere.hpp"
 #include "include/ellipsoid.hpp"
+#include "include/triangle.hpp"
 #include "include/scene.hpp"
 #include "include/intersections.hpp"
 

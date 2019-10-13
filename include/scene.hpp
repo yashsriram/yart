@@ -27,6 +27,7 @@ public:
     // Scene optional
     vector<Sphere> spheres;
     vector<Ellipsoid> ellipsoids;
+    vector<Triangle> triangles;
 
     vector<Light> lights;
 
@@ -49,6 +50,7 @@ public:
             return false;
         }
 
+        // Checks to ensure critical data is given
         unordered_map<string, int> criticalInputCheck;
         criticalInputCheck["eye"] = 0;
         criticalInputCheck["viewdir"] = 0;
@@ -56,8 +58,10 @@ public:
         criticalInputCheck["vfov"] = 0;
         criticalInputCheck["imsize"] = 0;
         criticalInputCheck["bkgcolor"] = 0;
-        MaterialColor mtlColor;
-        bool mtlColorExists = false;
+
+        MaterialColor materialColor;
+        vector<Vector3D> vertices;
+        bool materialColorExists = false;
 
         cout << "Parsing file \"" << this->filename << "\"." << endl;
         string line;
@@ -112,26 +116,36 @@ public:
             }
                 // Non-critical or optional input
             else if (keyword == "mtlcolor") {
-                if (!this->parseMtlColor(iss, mtlColor)) {
+                if (!this->parseMtlColor(iss, materialColor)) {
                     input.close();
                     return false;
                 }
-                mtlColorExists = true;
+                materialColorExists = true;
             } else if (keyword == "sphere") {
-                if (!mtlColorExists) {
+                if (!materialColorExists) {
                     cerr << "Sphere information found without preceding mtl color" << endl;
                     return false;
                 }
-                if (!this->parseSphere(iss, mtlColor)) {
+                if (!this->parseSphere(iss, materialColor)) {
                     input.close();
                     return false;
                 }
             } else if (keyword == "ellipsoid") {
-                if (!mtlColorExists) {
+                if (!materialColorExists) {
                     cerr << "Ellipsoid information found without preceding mtl color" << endl;
                     return false;
                 }
-                if (!this->parseEllipsoid(iss, mtlColor)) {
+                if (!this->parseEllipsoid(iss, materialColor)) {
+                    input.close();
+                    return false;
+                }
+            } else if (keyword == "v") {
+                if (!this->parseVertex(iss, vertices)) {
+                    input.close();
+                    return false;
+                }
+            } else if (keyword == "f") {
+                if (!this->parseFace(iss, vertices, materialColor)) {
                     input.close();
                     return false;
                 }
@@ -164,7 +178,7 @@ public:
 
 private:
     bool parseEye(istringstream &iss) {
-        // Value validation
+        // Validation
         float x, y, z;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
             cerr << "Eye coordinates incomplete" << endl;
@@ -176,7 +190,7 @@ private:
     }
 
     bool parseViewDir(istringstream &iss) {
-        // Value validation
+        // Validation
         float x, y, z;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
             cerr << "View Direction coordinates incomplete" << endl;
@@ -193,7 +207,7 @@ private:
     }
 
     bool parseUpDir(istringstream &iss) {
-        // Value validation
+        // Validation
         float x, y, z;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
             cerr << "Updir coordinates incomplete" << endl;
@@ -210,7 +224,7 @@ private:
     }
 
     bool parseVFov(istringstream &iss) {
-        // Value validation
+        // Validation
         float _vFovDeg;
         if (!(iss >> _vFovDeg)) {
             cerr << "VFov incomplete" << endl;
@@ -226,7 +240,7 @@ private:
     }
 
     bool parseImageSize(istringstream &iss) {
-        // Value validation
+        // Validation
         int _imWidth, _imHeight;
         if (!(iss >> _imWidth) || !(iss >> _imHeight)) {
             cerr << "Image size incomplete" << endl;
@@ -243,7 +257,7 @@ private:
     }
 
     bool parseBgColor(istringstream &iss) {
-        // Value validation
+        // Validation
         float r, g, b;
         if (!(iss >> r) || !(iss >> g) || !(iss >> b)) {
             cerr << "Background color incomplete" << endl;
@@ -302,7 +316,7 @@ private:
         return true;
     }
 
-    bool parseSphere(istringstream &iss, MaterialColor &color) {
+    bool parseSphere(istringstream &iss, const MaterialColor &color) {
         float x, y, z, rad;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
             cerr << "Sphere coordinates incomplete" << endl;
@@ -321,7 +335,7 @@ private:
         return true;
     }
 
-    bool parseEllipsoid(istringstream &iss, MaterialColor &color) {
+    bool parseEllipsoid(istringstream &iss, const MaterialColor &color) {
         float x, y, z, rx, ry, rz;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
             cerr << "Ellipsoid coordinates incomplete" << endl;
@@ -337,6 +351,50 @@ private:
         }
         // Setting scene variable
         this->ellipsoids.emplace_back(Vector3D(x, y, z), rx, ry, rz, color);
+        return true;
+    }
+
+    bool parseVertex(istringstream &iss, vector<Vector3D> &vertices) {
+        // Validation
+        float x, y, z;
+        if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
+            cerr << "Vertex coordinates incomplete" << endl;
+            return false;
+        }
+        // Setting scene variable
+        vertices.emplace_back(x, y, z);
+        return true;
+    }
+
+    bool parseFace(istringstream &iss, const vector<Vector3D> &vertices, const MaterialColor& materialColor) {
+        // Validation
+        int v1, v2, v3;
+        if (!(iss >> v1) || !(iss >> v2) || !(iss >> v3)) {
+            cerr << "Face indices incomplete" << endl;
+            return false;
+        }
+        // Converting 1 index to 0 index
+        v1--;
+        v2--;
+        v3--;
+        // Bounds validation
+        if (min(v1, min(v2, v3)) < 0 || max(v1, max(v2, v3)) >= vertices.size()) {
+            cerr << "Face indices out of bounds" << endl;
+            return false;
+        }
+        // Coincident vertex validation
+        if (v1 == v2 || v2 == v3 || v3 == v1) {
+            cerr << "Some of the face vertices are same" << endl;
+            cerr << "Line : f " << v1 + 1 << " " << v2 + 1 << " " << v3 + 1 << endl;
+            return false;
+        }
+        if (vertices[v1] == vertices[v2] || vertices[v2] == vertices[v3] || vertices[v3] == vertices[v1]) {
+            cerr << "Some of the face vertices are same" << endl;
+            cerr << "Line : f " << v1 + 1 << " " << v2 + 1 << " " << v3 + 1 << endl;
+            return false;
+        }
+        // Setting scene variable
+        this->triangles.emplace_back(Triangle(vertices[v1], vertices[v2], vertices[v3], materialColor));
         return true;
     }
 
@@ -386,6 +444,9 @@ std::ostream &operator<<(std::ostream &out, const Scene &s) {
     }
     for (const Ellipsoid &ellipsoid: s.ellipsoids) {
         out << ellipsoid << endl;
+    }
+    for (const Triangle &triangle: s.triangles) {
+        out << triangle << endl;
     }
     for (const Light &light: s.lights) {
         out << light << endl;
