@@ -26,7 +26,6 @@ public:
 
     // Scene optional
     vector<Sphere> spheres;
-    vector<Ellipsoid> ellipsoids;
     vector<Triangle> triangles;
 
     vector<Light> lights;
@@ -127,15 +126,6 @@ public:
                     return false;
                 }
                 if (!this->parseSphere(iss, materialColor)) {
-                    input.close();
-                    return false;
-                }
-            } else if (keyword == "ellipsoid") {
-                if (!materialColorExists) {
-                    cerr << "Ellipsoid information found without preceding mtl color" << endl;
-                    return false;
-                }
-                if (!this->parseEllipsoid(iss, materialColor)) {
                     input.close();
                     return false;
                 }
@@ -335,25 +325,6 @@ private:
         return true;
     }
 
-    bool parseEllipsoid(istringstream &iss, const MaterialColor &color) {
-        float x, y, z, rx, ry, rz;
-        if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
-            cerr << "Ellipsoid coordinates incomplete" << endl;
-            return false;
-        }
-        if (!(iss >> rx) || !(iss >> ry) || !(iss >> rz)) {
-            cerr << "Ellipsoid radius incomplete" << endl;
-            return false;
-        }
-        if (rx <= 0 || ry <= 0 || rz <= 0) {
-            cerr << "Ellipsoid radius is non-positive" << endl;
-            return false;
-        }
-        // Setting scene variable
-        this->ellipsoids.emplace_back(Vector3D(x, y, z), rx, ry, rz, color);
-        return true;
-    }
-
     bool parseVertex(istringstream &iss, vector<Vector3D> &vertices) {
         // Validation
         float x, y, z;
@@ -441,9 +412,6 @@ std::ostream &operator<<(std::ostream &out, const Scene &s) {
     out << "Bg clr: " << s.bgColor << endl;
     for (const Sphere &sphere: s.spheres) {
         out << sphere << endl;
-    }
-    for (const Ellipsoid &ellipsoid: s.ellipsoids) {
-        out << ellipsoid << endl;
     }
     for (const Triangle &triangle: s.triangles) {
         out << triangle << endl;

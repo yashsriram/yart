@@ -7,7 +7,6 @@
 #include "include/color.hpp"
 #include "include/ray.hpp"
 #include "include/sphere.hpp"
-#include "include/ellipsoid.hpp"
 #include "include/triangle.hpp"
 #include "include/scene.hpp"
 #include "include/intersections.hpp"
@@ -57,9 +56,9 @@ pair<int, float> traceRay(const Ray &ray, const Scene &scene, float grace = 0) {
         float t = smallestNonNegativeT(ray, sphere, grace);
         Ts.push_back(t);
     }
-    // Inspect intersection with all ellipsoids
-    for (const auto &ellipsoid : scene.ellipsoids) {
-        float t = smallestNonNegativeT(ray, ellipsoid, grace);
+    // Inspect intersection with all triangles
+    for (const auto &triangle : scene.triangles) {
+        float t = smallestNonNegativeT(ray, triangle, grace);
         Ts.push_back(t);
     }
     // Find smallest non-negative t
@@ -134,7 +133,7 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
         }
             // Intersection with an ellipsoid
         else {
-            return scene.ellipsoids[minTIndex - noSpheres].materialColor.diffusion.to8BitScale();
+            return scene.triangles[minTIndex - noSpheres].materialColor.diffusion.to8BitScale();
         }
     }
 }
