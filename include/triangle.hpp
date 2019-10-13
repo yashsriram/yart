@@ -23,9 +23,9 @@ public:
     // D = - (v1 dot normal)
     Triangle(Vector3D v1, Vector3D v2, Vector3D v3, MaterialColor materialColor) : v1(v1), v2(v2), v3(v3),
                                                                                    materialColor(materialColor),
-                                                                                   normal((v2 - v1).cross(v3 - v1)),
+                                                                                   normal((v2 - v1).cross(v3 - v1).unit()),
                                                                                    D(-v1.dot(normal)),
-                                                                                   area(normal.abs() / 2) {}
+                                                                                   area((v2 - v1).cross(v3 - v1).abs() / 2) {}
 
 };
 

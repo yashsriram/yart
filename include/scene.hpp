@@ -391,7 +391,11 @@ private:
             return false;
         }
         if (r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1) {
-            cerr << "Light r is not between 0 and 1" << endl;
+            cerr << "Light color is not between 0 and 1" << endl;
+            return false;
+        }
+        if (x == 0 && Vector3D(x, y, z).abs() < 1e-6) {
+            cerr << "Directional light direction vector is zero" << endl;
             return false;
         }
         // Setting scene variable

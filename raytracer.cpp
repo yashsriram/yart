@@ -100,8 +100,10 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
         // Return variant of bg color
         return (scene.bgColor * ray.direction.dot(scene.viewDir.unit())).to8BitScale();
     } else {
-        // Intersection with a sphere
+        // Blinn-phong illumination model
+        // I = Od * ka + Sum over lights [Si * Ilight (Od * kd * (N.L) + Os * ks * (N.H)^n)]
         if (minTIndex < noSpheres) {
+            // Intersection with a sphere
             Sphere sphere = scene.spheres[minTIndex];
             MaterialColor color = sphere.materialColor;
             Vector3D poi = ray.getPoint(minT);
@@ -130,10 +132,36 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
 
             phongColor.clamp();
             return phongColor.to8BitScale();
-        }
-            // Intersection with an ellipsoid
-        else {
-            return scene.triangles[minTIndex - noSpheres].materialColor.diffusion.to8BitScale();
+        } else {
+            // Intersection with an Triangle
+            Triangle triangle = scene.triangles[minTIndex - noSpheres];
+            MaterialColor color = triangle.materialColor;
+            Vector3D poi = ray.getPoint(minT);
+            Vector3D N = triangle.normal;
+            Vector3D V = (scene.eye - poi).unit();
+            // First term of blinn-phong model
+            Color phongColor = color.diffusion * color.ka;
+
+            for (auto &light: scene.lights) {
+                // Shadow factor determination
+                float S = 0;
+                for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
+                    Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
+                    S += (float) isUnderShadow(poi, Lj, light, scene);
+                }
+                S = S / NUM_SHADOW_RAYS_PER_POI;
+
+                // Second and third terms of blinn-phong model
+                Vector3D Li = light.poiToLightUnitVector(poi);
+                Vector3D Hi = (Li + V).unit();
+                Color secondTerm = color.diffusion * color.kd * max(0.0, (double) N.dot(Li));
+                Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
+                Color weightedTerm = (secondTerm + thirdTerm) * light.color ;
+                phongColor = phongColor + weightedTerm;
+            }
+
+            phongColor.clamp();
+            return phongColor.to8BitScale();
         }
     }
 }
