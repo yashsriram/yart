@@ -37,7 +37,7 @@ public:
     // Reads the scene description and validates it
     // If everything is valid returns true else returns false and prints and error message
     // If true is returned the scene description is stored in object variables
-    bool readAndValidate() {
+    bool parse() {
         // Opening input file
         ifstream input(this->filename.c_str());
 
@@ -73,37 +73,37 @@ public:
             }
                 // Critical input
             else if (keyword == "eye") {
-                if (!this->readEye(iss)) {
+                if (!this->parseEye(iss)) {
                     input.close();
                     return false;
                 }
                 criticalInputCheck[keyword] = 1;
             } else if (keyword == "viewdir") {
-                if (!this->readViewDir(iss)) {
+                if (!this->parseViewDir(iss)) {
                     input.close();
                     return false;
                 }
                 criticalInputCheck[keyword] = 1;
             } else if (keyword == "updir") {
-                if (!this->readUpDir(iss)) {
+                if (!this->parseUpDir(iss)) {
                     input.close();
                     return false;
                 }
                 criticalInputCheck[keyword] = 1;
             } else if (keyword == "vfov") {
-                if (!this->readVFov(iss)) {
+                if (!this->parseVFov(iss)) {
                     input.close();
                     return false;
                 }
                 criticalInputCheck[keyword] = 1;
             } else if (keyword == "imsize") {
-                if (!this->readImageSize(iss)) {
+                if (!this->parseImageSize(iss)) {
                     input.close();
                     return false;
                 }
                 criticalInputCheck[keyword] = 1;
             } else if (keyword == "bkgcolor") {
-                if (!this->readBgColor(iss)) {
+                if (!this->parseBgColor(iss)) {
                     input.close();
                     return false;
                 }
@@ -111,7 +111,7 @@ public:
             }
                 // Non-critical or optional input
             else if (keyword == "mtlcolor") {
-                if (!this->readMtlColor(iss, mtlColor)) {
+                if (!this->parseMtlColor(iss, mtlColor)) {
                     input.close();
                     return false;
                 }
@@ -121,7 +121,7 @@ public:
                     cerr << "Sphere information found without preceding mtl color" << endl;
                     return false;
                 }
-                if (!this->readSphere(iss, mtlColor)) {
+                if (!this->parseSphere(iss, mtlColor)) {
                     input.close();
                     return false;
                 }
@@ -130,12 +130,12 @@ public:
                     cerr << "Ellipsoid information found without preceding mtl color" << endl;
                     return false;
                 }
-                if (!this->readEllipsoid(iss, mtlColor)) {
+                if (!this->parseEllipsoid(iss, mtlColor)) {
                     input.close();
                     return false;
                 }
             } else if (keyword == "light") {
-                if (!this->readLight(iss)) {
+                if (!this->parseLight(iss)) {
                     input.close();
                     return false;
                 }
@@ -162,7 +162,7 @@ public:
     }
 
 private:
-    bool readEye(istringstream &iss) {
+    bool parseEye(istringstream &iss) {
         // Value validation
         float x, y, z;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
@@ -174,7 +174,7 @@ private:
         return true;
     }
 
-    bool readViewDir(istringstream &iss) {
+    bool parseViewDir(istringstream &iss) {
         // Value validation
         float x, y, z;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
@@ -191,7 +191,7 @@ private:
         return true;
     }
 
-    bool readUpDir(istringstream &iss) {
+    bool parseUpDir(istringstream &iss) {
         // Value validation
         float x, y, z;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
@@ -208,7 +208,7 @@ private:
         return true;
     }
 
-    bool readVFov(istringstream &iss) {
+    bool parseVFov(istringstream &iss) {
         // Value validation
         float vFovDeg;
         if (!(iss >> vFovDeg)) {
@@ -224,7 +224,7 @@ private:
         return true;
     }
 
-    bool readImageSize(istringstream &iss) {
+    bool parseImageSize(istringstream &iss) {
         // Value validation
         int _imWidth, _imHeight;
         if (!(iss >> _imWidth) || !(iss >> _imHeight)) {
@@ -241,7 +241,7 @@ private:
         return true;
     }
 
-    bool readBgColor(istringstream &iss) {
+    bool parseBgColor(istringstream &iss) {
         // Value validation
         float r, g, b;
         if (!(iss >> r) || !(iss >> g) || !(iss >> b)) {
@@ -257,7 +257,7 @@ private:
         return true;
     }
 
-    bool readMtlColor(istringstream &iss, MaterialColor &color) {
+    bool parseMtlColor(istringstream &iss, MaterialColor &color) {
         float dr, dg, db, sr, sg, sb, ka, kd, ks;
         int n;
         // Od validation
@@ -301,7 +301,7 @@ private:
         return true;
     }
 
-    bool readSphere(istringstream &iss, MaterialColor &color) {
+    bool parseSphere(istringstream &iss, MaterialColor &color) {
         float x, y, z, rad;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
             cerr << "Sphere coordinates incomplete" << endl;
@@ -320,7 +320,7 @@ private:
         return true;
     }
 
-    bool readEllipsoid(istringstream &iss, MaterialColor &color) {
+    bool parseEllipsoid(istringstream &iss, MaterialColor &color) {
         float x, y, z, rx, ry, rz;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
             cerr << "Ellipsoid coordinates incomplete" << endl;
@@ -339,7 +339,7 @@ private:
         return true;
     }
 
-    bool readLight(istringstream &iss) {
+    bool parseLight(istringstream &iss) {
         float r, g, b, w, x, y, z;
         // (x, y, z) validation
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {

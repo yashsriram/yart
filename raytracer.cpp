@@ -144,7 +144,7 @@ int main(int argc, char *argv[]) {
 
     // Read scene description from input file
     Scene scene(filename);
-    if (!scene.readAndValidate()) {
+    if (!scene.parse()) {
         return -1;
     };
 
