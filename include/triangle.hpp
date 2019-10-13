@@ -4,15 +4,15 @@
 #include "color.hpp"
 
 class Triangle {
-    Vector3D v1, v2, v3;
-    MaterialColor materialColor;
-    Vector3D normal;
-    float D;
+public:
+    const Vector3D v1, v2, v3;
+    const MaterialColor materialColor;
+    const Vector3D normal;
+    const float D;
 
     // this is to easily print a given object to std for debugging
     friend std::ostream &operator<<(std::ostream &, const Triangle &);
 
-public:
 
     Triangle() : v1(Vector3D()), v2(Vector3D()), v3(Vector3D()), materialColor(MaterialColor()), normal(Vector3D()),
                  D(0) {}

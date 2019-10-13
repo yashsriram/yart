@@ -8,9 +8,9 @@ float getRand() {
 
 class Light {
 public:
-    Vector3D vector;
-    int type;
-    Color color;
+    const Vector3D vector;
+    const int type;
+    const Color color;
 
     // this is to easily print a given object to std for debugging
     friend std::ostream &operator<<(std::ostream &, const Light &);
