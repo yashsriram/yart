@@ -382,7 +382,7 @@ private:
             cerr << "Face indices out of bounds" << endl;
             return false;
         }
-        // Coincident vertex validation
+        // Coincident vertex validation (simultaneously takes care of zero area triangles)
         if (v1 == v2 || v2 == v3 || v3 == v1) {
             cerr << "Some of the face vertices are same" << endl;
             cerr << "Line : f " << v1 + 1 << " " << v2 + 1 << " " << v3 + 1 << endl;
