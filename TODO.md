@@ -1,8 +1,0 @@
-- [x] Invalid number of args fix
-- [x] Output file name fix
-- [x] Accept empty lines
-- [x] shadow rays
-- [x] soft shadow
-- [x] light attenuation
-- [x] showcase pictures
-- [x] report
