@@ -47,7 +47,7 @@ int indexOfSmallestNonNegative(const vector<float> &vector) {
     return ans;
 }
 
-// Returns global index of object the ray first hits (in front of the eye) and corresponding T parameter of the hit
+// Returns global index of object the ray first hits (in front of the origin) and corresponding T parameter of the hit
 // If ray does not hit any object both index and T parameter are returned -1
 pair<int, float> traceRay(const Ray &ray, const Scene &scene, float grace = 0) {
     vector<float> Ts;
@@ -64,7 +64,7 @@ pair<int, float> traceRay(const Ray &ray, const Scene &scene, float grace = 0) {
     // Find smallest non-negative t
     int minTIndex = indexOfSmallestNonNegative(Ts);
 
-    return pair<int, float>(minTIndex, minTIndex < 0 ? -1 : Ts[minTIndex]);
+    return {minTIndex, minTIndex < 0 ? -1 : Ts[minTIndex]};
 }
 
 // Given point of intersection, unit direction to light source, light and scene
