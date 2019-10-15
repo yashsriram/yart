@@ -8,6 +8,21 @@
 
 using namespace std;
 
+// Returns tokens after splitting input string with delimiter
+vector<string> split(const string &input, const string &delimiter) {
+    string inputCopy = input;
+    vector<string> ans;
+    int pos = 0;
+    string token;
+    while ((pos = inputCopy.find(delimiter)) != string::npos) {
+        token = inputCopy.substr(0, pos);
+        ans.emplace_back(token);
+        inputCopy.erase(0, pos + delimiter.length());
+    }
+    ans.emplace_back(inputCopy);
+    return ans;
+}
+
 class Scene {
 public:
     // this is to easily print a given object to std for debugging
@@ -60,6 +75,7 @@ public:
 
         MaterialColor materialColor;
         vector<Vector3D> vertices;
+        vector<Vector3D> normals;
         bool materialColorExists = false;
 
         cout << "Parsing file \"" << this->filename << "\"." << endl;
@@ -134,8 +150,13 @@ public:
                     input.close();
                     return false;
                 }
+            } else if (keyword == "vn") {
+                if (!this->parseNormal(iss, normals)) {
+                    input.close();
+                    return false;
+                }
             } else if (keyword == "f") {
-                if (!this->parseFace(iss, vertices, materialColor)) {
+                if (!this->parseFace(iss, vertices, normals, materialColor)) {
                     input.close();
                     return false;
                 }
@@ -333,39 +354,133 @@ private:
             return false;
         }
         // Setting scene variable
-        vertices.emplace_back(x, y, z);
+        vertices.emplace_back(Vector3D(x, y, z));
         return true;
     }
 
-    bool parseFace(istringstream &iss, const vector<Vector3D> &vertices, const MaterialColor& materialColor) {
+    bool parseNormal(istringstream &iss, vector<Vector3D> &normals) {
         // Validation
-        int v1, v2, v3;
-        if (!(iss >> v1) || !(iss >> v2) || !(iss >> v3)) {
-            cerr << "Face indices incomplete" << endl;
-            return false;
-        }
-        // Converting 1 index to 0 index
-        v1--;
-        v2--;
-        v3--;
-        // Bounds validation
-        if (min(v1, min(v2, v3)) < 0 || max(v1, max(v2, v3)) >= vertices.size()) {
-            cerr << "Face indices out of bounds" << endl;
-            return false;
-        }
-        // Coincident vertex validation (simultaneously takes care of zero area triangles)
-        if (v1 == v2 || v2 == v3 || v3 == v1) {
-            cerr << "Some of the face vertices are same" << endl;
-            cerr << "Line : f " << v1 + 1 << " " << v2 + 1 << " " << v3 + 1 << endl;
-            return false;
-        }
-        if (vertices[v1] == vertices[v2] || vertices[v2] == vertices[v3] || vertices[v3] == vertices[v1]) {
-            cerr << "Some of the face vertices are same" << endl;
-            cerr << "Line : f " << v1 + 1 << " " << v2 + 1 << " " << v3 + 1 << endl;
+        float x, y, z;
+        if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
+            cerr << "Normal coordinates incomplete" << endl;
             return false;
         }
         // Setting scene variable
-        this->triangles.emplace_back(Triangle(vertices[v1], vertices[v2], vertices[v3], materialColor));
+        normals.emplace_back(Vector3D(x, y, z));
+        return true;
+    }
+
+    // Returns a four sized vector of ints specifying face type, vertex, texture and normal indices
+    // If any index is not specified 0 is returned (all valid indices are >= 1 anyway)
+    vector<int> parseFaceVertex(const string &vertex) {
+        vector<int> ans;
+        vector<string> tokens = split(vertex, "/");
+        if (tokens.size() == 1) {
+            // Flat-shaded texture-less
+            ans.emplace_back(FLAT_TEXTURE_LESS);
+            ans.emplace_back(stoi(tokens[0]));
+            ans.emplace_back(0);
+            ans.emplace_back(0);
+            return ans;
+        } else if (tokens.size() == 2) {
+            // Flat-shaded textured
+            ans.emplace_back(FLAT_TEXTURED);
+            ans.emplace_back(stoi(tokens[0]));
+            ans.emplace_back(stoi(tokens[1]));
+            ans.emplace_back(0);
+            return ans;
+        } else if (tokens.size() == 3 && tokens[1].empty()) {
+            // Smooth-shaded texture-less
+            ans.emplace_back(SMOOTH_TEXTURE_LESS);
+            ans.emplace_back(stoi(tokens[0]));
+            ans.emplace_back(0);
+            ans.emplace_back(stoi(tokens[2]));
+            return ans;
+        } else if (tokens.size() == 3 && !tokens[1].empty()) {
+            // Smooth-shaded textured
+            ans.emplace_back(SMOOTH_TEXTURED);
+            ans.emplace_back(stoi(tokens[0]));
+            ans.emplace_back(stoi(tokens[1]));
+            ans.emplace_back(stoi(tokens[2]));
+            return ans;
+        } else {
+            throw "Unknown vertex format";
+        }
+    }
+
+    bool parseFace(istringstream &iss,
+                   const vector<Vector3D> &vertices,
+                   const vector<Vector3D> &normals,
+                   const MaterialColor &materialColor) {
+        // Validation
+        string s1, s2, s3;
+        if (!(iss >> s1) || !(iss >> s2) || !(iss >> s3)) {
+            cerr << "Face indices incomplete" << endl;
+            return false;
+        }
+        // Parsing indices of face
+        int v1, v2, v3;
+        int n1, n2, n3;
+        try {
+            vector<int> t1_v1_t1_n1 = parseFaceVertex(s1);
+            vector<int> t2_v2_t2_n2 = parseFaceVertex(s2);
+            vector<int> t3_v3_t3_n3 = parseFaceVertex(s3);
+            // Type consistency validation
+            if (t1_v1_t1_n1[0] != t2_v2_t2_n2[0] || t2_v2_t2_n2[0] != t3_v3_t3_n3[0]) {
+                throw "Inconsistent face definition";
+            }
+            // Vertex validation
+            v1 = t1_v1_t1_n1[1] - 1;
+            v2 = t2_v2_t2_n2[1] - 1;
+            v3 = t3_v3_t3_n3[1] - 1;
+            // Bounds validation
+            if (min(v1, min(v2, v3)) < 0 || max(v1, max(v2, v3)) >= vertices.size()) {
+                throw "Face indices out of bounds";
+            }
+            // Coincident vertex validation (simultaneously takes care of zero area triangles)
+            if (v1 == v2 || v2 == v3 || v3 == v1) {
+                throw "Some of the face vertices are same";
+            }
+            if (vertices[v1] == vertices[v2] || vertices[v2] == vertices[v3] || vertices[v3] == vertices[v1]) {
+                throw "Some of the face vertices are same";
+            }
+            switch (t1_v1_t1_n1[0]) {
+                case FLAT_TEXTURE_LESS:
+                    // Setting scene variable
+                    this->triangles.emplace_back(
+                            Triangle(vertices[v1], vertices[v2], vertices[v3],
+                                     materialColor)
+                    );
+                    break;
+                case FLAT_TEXTURED:
+                    // todo
+                    break;
+                case SMOOTH_TEXTURE_LESS:
+                    n1 = t1_v1_t1_n1[3] - 1;
+                    n2 = t2_v2_t2_n2[3] - 1;
+                    n3 = t3_v3_t3_n3[3] - 1;
+                    if (min(n1, min(n2, n3)) < 0 || max(n1, max(n2, n3)) >= normals.size()) {
+                        throw "Normal indices out of bounds";
+                    }
+                    this->triangles.emplace_back(
+                            Triangle(vertices[v1], vertices[v2], vertices[v3],
+                                     normals[v1], normals[v2], normals[v3],
+                                     materialColor)
+                    );
+                    break;
+                case SMOOTH_TEXTURED:
+                    // todo
+                    break;
+                default:
+                    throw "Unknown face type";
+            }
+        } catch (exception &e) {
+            cerr << "Error while parsing face: " << e.what() << endl;
+            return false;
+        } catch (const char *e) {
+            cerr << e << endl;
+            return false;
+        }
         return true;
     }
 

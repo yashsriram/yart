@@ -2,7 +2,7 @@ Extras
     HW0
     - [x] interesting images
     HW1a
-    - [x] gently varying background
+    - [x] gently varying background (implemented but removed for better images, was a single line impl anyway)
     HW1b
     - [x] soft shadow
     HW1c

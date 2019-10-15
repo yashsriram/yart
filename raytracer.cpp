@@ -98,7 +98,7 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
     // No intersection with anything
     if (minTIndex < 0) {
         // Return variant of bg color
-        return (scene.bgColor * ray.direction.dot(scene.viewDir.unit())).to8BitScale();
+        return scene.bgColor.to8BitScale();
     } else {
         // Blinn-phong illumination model
         // I = Od * ka + Sum over lights [Si * Ilight (Od * kd * (N.L) + Os * ks * (N.H)^n)]
@@ -137,7 +137,7 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
             Triangle triangle = scene.triangles[minTIndex - noSpheres];
             MaterialColor color = triangle.materialColor;
             Vector3D poi = ray.getPoint(minT);
-            Vector3D N = triangle.normal;
+            Vector3D N = triangle.surfaceNormal.unit();
             Vector3D V = (scene.eye - poi).unit();
             // First term of blinn-phong model
             Color phongColor = color.diffusion * color.ka;

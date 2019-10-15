@@ -7,3 +7,5 @@ tags
 *.pdf
 .idea
 cmake-build-debug
+scratch.cpp
+a.out
