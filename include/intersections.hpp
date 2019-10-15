@@ -46,9 +46,9 @@ float smallestNonNegativeT(const Ray &ray, const Triangle &triangle, float grace
     float numerator = -(triangle.surfaceNormal.dot(ray.origin) + triangle.D);
     // Parallel / Coincident ray; doesn't intersect
     if (abs(denominator) < 1e-6) { return -1; }
-    // Behind origin intersection
+    // Behind origin or self intersection intersection
     float t = numerator / denominator;
-    if (t < 0) { return -1; }
+    if (t < grace) { return -1; }
     Vector3D poi = ray.getPoint(t);
     Triangle a(poi, triangle.v2, triangle.v3, triangle.materialColor);
     Triangle b(poi, triangle.v1, triangle.v3, triangle.materialColor);
