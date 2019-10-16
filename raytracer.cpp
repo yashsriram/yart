@@ -162,28 +162,31 @@ Color calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float mi
 
                 return phongColor;
             } else if (triangle.type == FLAT_TEXTURED) {
-//                Vector3D N = triangle.surfaceNormal.unit();
-//                // First term of blinn-phong model
-//                Color phongColor = color.diffusion * color.ka;
-//                for (auto &light: scene.lights) {
-//                    // Shadow factor determination
-//                    float S = 0;
-//                    for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
-//                        Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
-//                        S += (float) isUnderShadow(poi, Lj, light, scene);
-//                    }
-//                    S = S / NUM_SHADOW_RAYS_PER_POI;
-//
-//                    // Second and third terms of blinn-phong model
-//                    Vector3D Li = light.poiToLightUnitVector(poi);
-//                    Vector3D Hi = (Li + V).unit();
-//                    Color secondTerm = color.diffusion * color.kd * max(0.0, (double) N.dot(Li));
-//                    Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
-//                    Color weightedTerm = (secondTerm + thirdTerm) * light.color * S;
-//                    phongColor = phongColor + weightedTerm;
-//                }
-////                cout << phongColor << endl;
-//                return phongColor;
+                Vector3D N = triangle.surfaceNormal.unit();
+                TextureCoordinates textureCoordinates = triangle.getInterpolatedTextureCoordinates(poi);
+                Color textureColor = scene.textures[triangle.textureIndex].colorAt(textureCoordinates);
+
+                // First term of blinn-phong model
+                Color phongColor = textureColor * color.ka;
+                for (auto &light: scene.lights) {
+                    // Shadow factor determination
+                    float S = 0;
+                    for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
+                        Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
+                        S += (float) isUnderShadow(poi, Lj, light, scene);
+                    }
+                    S = S / NUM_SHADOW_RAYS_PER_POI;
+
+                    // Second and third terms of blinn-phong model
+                    Vector3D Li = light.poiToLightUnitVector(poi);
+                    Vector3D Hi = (Li + V).unit();
+                    Color secondTerm = textureColor * color.kd * max(0.0, (double) N.dot(Li));
+                    Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
+                    Color weightedTerm = (secondTerm + thirdTerm) * light.color * S;
+                    phongColor = phongColor + weightedTerm;
+                }
+
+                return phongColor;
             } else if (triangle.type == SMOOTH_TEXTURE_LESS) {
                 Vector3D N = triangle.getInterpolatedNormal(poi);
                 // First term of blinn-phong model

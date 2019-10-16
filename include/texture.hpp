@@ -98,6 +98,11 @@ public:
         return true;
     }
 
+    Color colorAt(const TextureCoordinates &textureCoordinates) const {
+        int i = round(textureCoordinates.u * (width - 1));
+        int j = round(textureCoordinates.v * (height - 1));
+        return pixels[i][j];
+    }
 };
 
 

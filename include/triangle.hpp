@@ -87,7 +87,7 @@ public:
               D(-v1.dot(surfaceNormal)),
               area((v2 - v1).cross(v3 - v1).abs() / 2) {}
 
-    // For smooth triangles returns interpolated normal given point of intersection
+    // Returns interpolated normal given point of intersection
     Vector3D getInterpolatedNormal(const Vector3D &poi) const {
         Triangle a(poi, v2, v3, materialColor);
         Triangle b(poi, v1, v3, materialColor);
@@ -96,6 +96,17 @@ public:
         float beta = b.area / area;
         float gamma = c.area / area;
         return (n1 * alpha + n2 * beta + n3 * gamma).unit();
+    }
+
+    // Returns interpolated texture coordinates given point of intersection
+    TextureCoordinates getInterpolatedTextureCoordinates(const Vector3D &poi) const {
+        Triangle a(poi, v2, v3, materialColor);
+        Triangle b(poi, v1, v3, materialColor);
+        Triangle c(poi, v1, v2, materialColor);
+        float alpha = a.area / area;
+        float beta = b.area / area;
+        float gamma = c.area / area;
+        return t1 * alpha + t2 * beta + t3 * gamma;
     }
 
 };

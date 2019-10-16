@@ -13,6 +13,15 @@ public:
 
     TextureCoordinates(float u, float v) : u(u), v(v) {}
 
+    TextureCoordinates operator+(const TextureCoordinates &b) const {
+        return TextureCoordinates(this->u + b.u, this->v + b.v);
+    }
+
+    TextureCoordinates operator*(float t) const {
+        return TextureCoordinates(this->u * t, this->v * t);
+    }
+
+
 };
 
 std::ostream &operator<<(std::ostream &out, const TextureCoordinates &tc) {
