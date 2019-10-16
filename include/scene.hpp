@@ -5,23 +5,9 @@
 #include <unordered_map>
 #include <sstream>
 #include "light.hpp"
+#include "texture.hpp"
 
 using namespace std;
-
-// Returns tokens after splitting input string with delimiter
-vector<string> split(const string &input, const string &delimiter) {
-    string inputCopy = input;
-    vector<string> ans;
-    int pos = 0;
-    string token;
-    while ((pos = inputCopy.find(delimiter)) != string::npos) {
-        token = inputCopy.substr(0, pos);
-        ans.emplace_back(token);
-        inputCopy.erase(0, pos + delimiter.length());
-    }
-    ans.emplace_back(inputCopy);
-    return ans;
-}
 
 class Scene {
 public:
@@ -74,6 +60,7 @@ public:
         criticalInputCheck["bkgcolor"] = 0;
 
         MaterialColor materialColor;
+        Texture texture;
         vector<Vector3D> vertices;
         vector<Vector3D> normals;
         bool materialColorExists = false;
@@ -136,12 +123,8 @@ public:
                     return false;
                 }
                 materialColorExists = true;
-            } else if (keyword == "sphere") {
-                if (!materialColorExists) {
-                    cerr << "Sphere information found without preceding mtl color" << endl;
-                    return false;
-                }
-                if (!this->parseSphere(iss, materialColor)) {
+            } else if (keyword == "texture") {
+                if (!this->parseTexture(iss, texture)) {
                     input.close();
                     return false;
                 }
@@ -155,8 +138,21 @@ public:
                     input.close();
                     return false;
                 }
+            } else if (keyword == "sphere") {
+                if (!materialColorExists) {
+                    cerr << "Sphere information found without preceding mtl color" << endl;
+                    return false;
+                }
+                if (!this->parseSphere(iss, materialColor)) {
+                    input.close();
+                    return false;
+                }
             } else if (keyword == "f") {
-                if (!this->parseFace(iss, vertices, normals, materialColor)) {
+                if (!materialColorExists) {
+                    cerr << "Face information found without preceding mtl color" << endl;
+                    return false;
+                }
+                if (!this->parseFace(iss, vertices, normals, materialColor, texture)) {
                     input.close();
                     return false;
                 }
@@ -327,6 +323,18 @@ private:
         return true;
     }
 
+    bool parseTexture(istringstream &iss, Texture &texture) {
+        // Validation
+        string filename;
+        if (!(iss >> filename)) {
+            cerr << "Texture filename not given" << endl;
+            return false;
+        }
+        // Setting scene variable
+        texture = Texture(filename);
+        return texture.parse();
+    }
+
     bool parseSphere(istringstream &iss, const MaterialColor &color) {
         float x, y, z, rad;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
@@ -411,7 +419,8 @@ private:
     bool parseFace(istringstream &iss,
                    const vector<Vector3D> &vertices,
                    const vector<Vector3D> &normals,
-                   const MaterialColor &materialColor) {
+                   const MaterialColor &materialColor,
+                   const Texture& texture) {
         // Validation
         string s1, s2, s3;
         if (!(iss >> s1) || !(iss >> s2) || !(iss >> s3)) {
@@ -518,6 +527,7 @@ private:
         this->lights.emplace_back(light);
         return true;
     }
+
 };
 
 // this is to easily print a given object in a well-formatted manner to std for debugging

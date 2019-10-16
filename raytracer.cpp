@@ -10,6 +10,7 @@
 #include "include/triangle.hpp"
 #include "include/scene.hpp"
 #include "include/intersections.hpp"
+#include "include/texture.hpp"
 
 using namespace std;
 

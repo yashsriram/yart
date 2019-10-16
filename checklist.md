@@ -15,3 +15,8 @@ Bug fixes
     - [x] Ignore unknown keywords
 
 Features
+    - [ ] texture mapping on triangles
+    - [ ] texture mapping + smooth shading on triangles
+    - [ ] texture mapping on spheres
+    - [ ] parallel projection
+    - [ ] example ppms
