@@ -25,18 +25,19 @@ public:
     }
 
     std::string to8BitScale() const {
-        return std::to_string(int(r * 255))
+        // Clamp color channels
+        float R = r, G = g, B = b;
+        if (r < 0) { R = 0; } else if (r > 1) { R = 1; }
+        if (g < 0) { G = 0; } else if (g > 1) { G = 1; }
+        if (b < 0) { B = 0; } else if (b > 1) { B = 1; }
+        // Return appropriate string value
+        return std::to_string(int(R * 255))
                + " "
-               + std::to_string(int(g * 255))
+               + std::to_string(int(G * 255))
                + " "
-               + std::to_string(int(b * 255));
+               + std::to_string(int(B * 255));
     }
 
-    void clamp() {
-        if (r < 0) { r = 0; } else if (r > 1) { r = 1; }
-        if (g < 0) { g = 0; } else if (g > 1) { g = 1; }
-        if (b < 0) { b = 0; } else if (b > 1) { b = 1; }
-    }
 };
 
 class MaterialColor {

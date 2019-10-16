@@ -140,7 +140,7 @@ public:
                     input.close();
                     return false;
                 }
-            } else if (keyword == "vd") {
+            } else if (keyword == "vt") {
                 if (!this->parseTextureCoordinates(iss, textureCoordinates)) {
                     input.close();
                     return false;
@@ -453,17 +453,17 @@ private:
         }
         try {
             // Parsing indices of face
-            vector<int> t1_v1_t1_n1 = parseFaceVertex(s1);
-            vector<int> t2_v2_t2_n2 = parseFaceVertex(s2);
-            vector<int> t3_v3_t3_n3 = parseFaceVertex(s3);
+            vector<int> ty1_v1_t1_n1 = parseFaceVertex(s1);
+            vector<int> ty2_v2_t2_n2 = parseFaceVertex(s2);
+            vector<int> ty3_v3_t3_n3 = parseFaceVertex(s3);
             // Type consistency validation
-            if (t1_v1_t1_n1[0] != t2_v2_t2_n2[0] || t2_v2_t2_n2[0] != t3_v3_t3_n3[0]) {
+            if (ty1_v1_t1_n1[0] != ty2_v2_t2_n2[0] || ty2_v2_t2_n2[0] != ty3_v3_t3_n3[0]) {
                 throw "Inconsistent face definition";
             }
             // Vertex validation
-            int v1 = t1_v1_t1_n1[1] - 1;
-            int v2 = t2_v2_t2_n2[1] - 1;
-            int v3 = t3_v3_t3_n3[1] - 1;
+            int v1 = ty1_v1_t1_n1[1] - 1;
+            int v2 = ty2_v2_t2_n2[1] - 1;
+            int v3 = ty3_v3_t3_n3[1] - 1;
             // Bounds validation
             if (min(v1, min(v2, v3)) < 0 || max(v1, max(v2, v3)) >= vertices.size()) {
                 throw "Face indices out of bounds";
@@ -477,7 +477,7 @@ private:
             }
             int t1, t2, t3;
             int n1, n2, n3;
-            switch (t1_v1_t1_n1[0]) {
+            switch (ty1_v1_t1_n1[0]) {
                 case FLAT_TEXTURE_LESS:
                     // Setting scene variable
                     this->triangles.emplace_back(
@@ -486,9 +486,9 @@ private:
                     );
                     break;
                 case FLAT_TEXTURED:
-                    t1 = t1_v1_t1_n1[2] - 1;
-                    t2 = t2_v2_t2_n2[2] - 1;
-                    t3 = t3_v3_t3_n3[2] - 1;
+                    t1 = ty1_v1_t1_n1[2] - 1;
+                    t2 = ty2_v2_t2_n2[2] - 1;
+                    t3 = ty3_v3_t3_n3[2] - 1;
                     if (min(t1, min(t2, t3)) < 0 || max(t1, max(t2, t3)) >= textureCoordinates.size()) {
                         throw "Texture coordinates indices out of bounds";
                     }
@@ -500,9 +500,9 @@ private:
                     );
                     break;
                 case SMOOTH_TEXTURE_LESS:
-                    n1 = t1_v1_t1_n1[3] - 1;
-                    n2 = t2_v2_t2_n2[3] - 1;
-                    n3 = t3_v3_t3_n3[3] - 1;
+                    n1 = ty1_v1_t1_n1[3] - 1;
+                    n2 = ty2_v2_t2_n2[3] - 1;
+                    n3 = ty3_v3_t3_n3[3] - 1;
                     if (min(n1, min(n2, n3)) < 0 || max(n1, max(n2, n3)) >= normals.size()) {
                         throw "Normal indices out of bounds";
                     }
@@ -513,15 +513,15 @@ private:
                     );
                     break;
                 case SMOOTH_TEXTURED:
-                    n1 = t1_v1_t1_n1[3] - 1;
-                    n2 = t2_v2_t2_n2[3] - 1;
-                    n3 = t3_v3_t3_n3[3] - 1;
+                    n1 = ty1_v1_t1_n1[3] - 1;
+                    n2 = ty2_v2_t2_n2[3] - 1;
+                    n3 = ty3_v3_t3_n3[3] - 1;
                     if (min(n1, min(n2, n3)) < 0 || max(n1, max(n2, n3)) >= normals.size()) {
                         throw "Normal indices out of bounds";
                     }
-                    t1 = t1_v1_t1_n1[2] - 1;
-                    t2 = t2_v2_t2_n2[2] - 1;
-                    t3 = t3_v3_t3_n3[2] - 1;
+                    t1 = ty1_v1_t1_n1[2] - 1;
+                    t2 = ty2_v2_t2_n2[2] - 1;
+                    t3 = ty3_v3_t3_n3[2] - 1;
                     if (min(t1, min(t2, t3)) < 0 || max(t1, max(t2, t3)) >= textureCoordinates.size()) {
                         throw "Texture coordinates indices out of bounds";
                     }

@@ -94,12 +94,12 @@ int isUnderShadow(const Vector3D &poi, const Vector3D &Li, const Light &light, c
 }
 
 // Given ray, scene and intersecting object and point returns appropriate color to fill in the corresponding pixel of output image
-string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float minT) {
+Color calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float minT) {
     int noSpheres = scene.spheres.size();
     // No intersection with anything
     if (minTIndex < 0) {
         // Return variant of bg color
-        return scene.bgColor.to8BitScale();
+        return scene.bgColor;
     } else {
         // Blinn-phong illumination model
         // I = Od * ka + Sum over lights [Si * Ilight (Od * kd * (N.L) + Os * ks * (N.H)^n)]
@@ -131,8 +131,7 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
                 phongColor = phongColor + weightedTerm;
             }
 
-            phongColor.clamp();
-            return phongColor.to8BitScale();
+            return phongColor;
         } else {
             // Intersection with an Triangle
             Triangle triangle = scene.triangles[minTIndex - noSpheres];
@@ -161,8 +160,7 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
                     phongColor = phongColor + weightedTerm;
                 }
 
-                phongColor.clamp();
-                return phongColor.to8BitScale();
+                return phongColor;
             } else if (triangle.type == FLAT_TEXTURED) {
                 // todo
             } else if (triangle.type == SMOOTH_TEXTURE_LESS) {
@@ -187,13 +185,12 @@ string calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float m
                     phongColor = phongColor + weightedTerm;
                 }
 
-                phongColor.clamp();
-                return phongColor.to8BitScale();
+                return phongColor;
             } else if (triangle.type == SMOOTH_TEXTURED) {
                 // todo
             }
             // Return black color if non of the above types
-            return Color().to8BitScale();
+            return Color();
         }
     }
 }
@@ -233,9 +230,9 @@ int main(int argc, char *argv[]) {
     Vector3D delHeight = (ll - ul) * (1 / ((float) scene.imHeight - 1));
 
     // Initialize pixel array for output image
-    vector<vector<string> > colors;
+    vector<vector<Color> > colors;
     for (int i = 0; i < scene.imWidth; i++) {
-        vector<string> col;
+        vector<Color> col;
         col.resize(scene.imHeight);
         colors.push_back(col);
     }
@@ -249,9 +246,9 @@ int main(int argc, char *argv[]) {
             Ray ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             // trace this ray in the scene to produce a color for the pixel
             pair<int, float> minTIndex_minT = traceRay(ray, scene);
-            string pixelValue = calculateColor(ray, scene, minTIndex_minT.first, minTIndex_minT.second);
+            Color color = calculateColor(ray, scene, minTIndex_minT.first, minTIndex_minT.second);
             // Keep track of color
-            colors[i][j] = pixelValue;
+            colors[i][j] = color;
         }
     }
 
@@ -274,7 +271,7 @@ int main(int argc, char *argv[]) {
     for (int j = 0; j < scene.imHeight; ++j) {
         for (int i = 0; i < scene.imWidth; ++i) {
             // Write the R G B values of a pixel in seperate line
-            outputFile << colors[i][j] << endl;
+            outputFile << colors[i][j].to8BitScale() << endl;
         }
     }
 
