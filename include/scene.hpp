@@ -392,6 +392,10 @@ private:
             cerr << "Texture coordinates incomplete" << endl;
             return false;
         }
+        if (u < 0 || u > 1 || v < 0 || v > 1) {
+            cerr << "Texture coordinates out of bounds" << endl;
+            return false;
+        }
         // Setting scene variable
         textureCoordinates.emplace_back(TextureCoordinates(u, v));
         return true;
@@ -471,6 +475,8 @@ private:
             if (vertices[v1] == vertices[v2] || vertices[v2] == vertices[v3] || vertices[v3] == vertices[v1]) {
                 throw "Some of the face vertices are same";
             }
+            int t1, t2, t3;
+            int n1, n2, n3;
             switch (t1_v1_t1_n1[0]) {
                 case FLAT_TEXTURE_LESS:
                     // Setting scene variable
@@ -480,7 +486,6 @@ private:
                     );
                     break;
                 case FLAT_TEXTURED:
-                    int t1, t2, t3;
                     t1 = t1_v1_t1_n1[2] - 1;
                     t2 = t2_v2_t2_n2[2] - 1;
                     t3 = t3_v3_t3_n3[2] - 1;
@@ -495,7 +500,6 @@ private:
                     );
                     break;
                 case SMOOTH_TEXTURE_LESS:
-                    int n1, n2, n3;
                     n1 = t1_v1_t1_n1[3] - 1;
                     n2 = t2_v2_t2_n2[3] - 1;
                     n3 = t3_v3_t3_n3[3] - 1;
@@ -509,7 +513,25 @@ private:
                     );
                     break;
                 case SMOOTH_TEXTURED:
-                    // todo
+                    n1 = t1_v1_t1_n1[3] - 1;
+                    n2 = t2_v2_t2_n2[3] - 1;
+                    n3 = t3_v3_t3_n3[3] - 1;
+                    if (min(n1, min(n2, n3)) < 0 || max(n1, max(n2, n3)) >= normals.size()) {
+                        throw "Normal indices out of bounds";
+                    }
+                    t1 = t1_v1_t1_n1[2] - 1;
+                    t2 = t2_v2_t2_n2[2] - 1;
+                    t3 = t3_v3_t3_n3[2] - 1;
+                    if (min(t1, min(t2, t3)) < 0 || max(t1, max(t2, t3)) >= textureCoordinates.size()) {
+                        throw "Texture coordinates indices out of bounds";
+                    }
+                    this->triangles.emplace_back(
+                            Triangle(vertices[v1], vertices[v2], vertices[v3],
+                                     materialColor,
+                                     normals[n1], normals[n2], normals[n3],
+                                     textureCoordinates[t1], textureCoordinates[t2], textureCoordinates[t3],
+                                     texture)
+                    );
                     break;
                 default:
                     throw "Unknown face type";

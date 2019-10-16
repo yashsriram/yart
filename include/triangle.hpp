@@ -57,14 +57,30 @@ public:
               D(-v1.dot(surfaceNormal)),
               area((v2 - v1).cross(v3 - v1).abs() / 2) {}
 
-    // FLAT_TEXTURE_LESS: Concisely initialized: surface normal = (v2 - v1) cross (v3 - v1), D = - (v1 dot normal), area
+    // FLAT_TEXTURED: Concisely initialized: surface normal = (v2 - v1) cross (v3 - v1), D = - (v1 dot normal), area
     Triangle(Vector3D v1, Vector3D v2, Vector3D v3,
              MaterialColor materialColor,
              TextureCoordinates t1, TextureCoordinates t2, TextureCoordinates t3,
              const Texture &texture)
-            : type(FLAT_TEXTURE_LESS),
+            : type(FLAT_TEXTURED),
               v1(v1), v2(v2), v3(v3),
               n1(Vector3D()), n2(Vector3D()), n3(Vector3D()),
+              t1(t1), t2(t2), t3(t3),
+              texture(texture),
+              materialColor(materialColor),
+              surfaceNormal((v2 - v1).cross(v3 - v1)),
+              D(-v1.dot(surfaceNormal)),
+              area((v2 - v1).cross(v3 - v1).abs() / 2) {}
+
+    // SMOOTH_TEXTURED: Concisely initialized: surface normal = (v2 - v1) cross (v3 - v1), D = - (v1 dot normal), area
+    Triangle(Vector3D v1, Vector3D v2, Vector3D v3,
+             MaterialColor materialColor,
+             Vector3D n1, Vector3D n2, Vector3D n3,
+             TextureCoordinates t1, TextureCoordinates t2, TextureCoordinates t3,
+             const Texture &texture)
+            : type(SMOOTH_TEXTURED),
+              v1(v1), v2(v2), v3(v3),
+              n1(n1), n2(n2), n3(n3),
               t1(t1), t2(t2), t3(t3),
               texture(texture),
               materialColor(materialColor),
@@ -86,8 +102,18 @@ public:
 };
 
 std::ostream &operator<<(std::ostream &out, const Triangle &t) {
-    out << "TriAng:"
-        << t.type << "\n"
+    string type;
+    if (t.type == FLAT_TEXTURE_LESS) {
+        type = "FLAT_TEXTURE_LESS";
+    } else if (t.type == FLAT_TEXTURED) {
+        type = "FLAT_TEXTURED";
+    } else if (t.type == SMOOTH_TEXTURE_LESS) {
+        type = "SMOOTH_TEXTURE_LESS";
+    } else {
+        type = "SMOOTH_TEXTURED";
+    }
+    out << "TriAng: "
+        << type << "\n"
         << "\t" << t.v1 << "\t" << t.v2 << "\t" << t.v3 << "\n"
         << "\t" << t.n1 << "\t" << t.n2 << "\t" << t.n3 << "\n"
         << "\t" << "Surface normal: " << "\t" << t.surfaceNormal << "\t" << "D: " << "\t" << t.D << "\n"
