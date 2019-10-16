@@ -47,6 +47,10 @@ public:
         this->pixels.clear();
     }
 
+    bool isValid() const {
+        return width > 0 && height > 0;
+    }
+
     bool parse() {
         // Opening texture file
         ifstream texturePPM(filename.c_str());
@@ -61,6 +65,10 @@ public:
         istringstream heading(line);
         string temp;
         heading >> temp >> width >> height >> pixelMax;
+        if (width <= 0 || height <= 0) {
+            cerr << "Texture file named \"" << filename << "\" is invalid. Zero dimension image." << endl;
+            return false;
+        }
         // Initialize pixel array for output image
         for (int i = 0; i < width; i++) {
             vector<Color> col;

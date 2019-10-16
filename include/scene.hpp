@@ -29,6 +29,7 @@ public:
     // Scene optional
     vector<Sphere> spheres;
     vector<Triangle> triangles;
+    vector<Texture> textures;
 
     vector<Light> lights;
 
@@ -61,7 +62,6 @@ public:
         criticalInputCheck["bkgcolor"] = 0;
 
         MaterialColor materialColor;
-        Texture texture;
         vector<Vector3D> vertices;
         vector<Vector3D> normals;
         vector<TextureCoordinates> textureCoordinates;
@@ -126,7 +126,7 @@ public:
                 }
                 materialColorExists = true;
             } else if (keyword == "texture") {
-                if (!this->parseTexture(iss, texture)) {
+                if (!this->parseTexture(iss)) {
                     input.close();
                     return false;
                 }
@@ -159,7 +159,7 @@ public:
                     cerr << "Face information found without preceding mtl color" << endl;
                     return false;
                 }
-                if (!this->parseFace(iss, vertices, materialColor, normals, textureCoordinates, texture)) {
+                if (!this->parseFace(iss, vertices, materialColor, normals, textureCoordinates)) {
                     input.close();
                     return false;
                 }
@@ -330,16 +330,20 @@ private:
         return true;
     }
 
-    bool parseTexture(istringstream &iss, Texture &texture) {
+    bool parseTexture(istringstream &iss) {
         // Validation
-        string filename;
-        if (!(iss >> filename)) {
+        string textureFilename;
+        if (!(iss >> textureFilename)) {
             cerr << "Texture filename not given" << endl;
             return false;
         }
+        Texture texture(textureFilename);
+        if (!texture.parse()) {
+            return false;
+        }
         // Setting scene variable
-        texture = Texture(filename);
-        return texture.parse();
+        textures.emplace_back(texture);
+        return true;
     }
 
     bool parseSphere(istringstream &iss, const MaterialColor &color) {
@@ -443,8 +447,7 @@ private:
                    const vector<Vector3D> &vertices,
                    const MaterialColor &materialColor,
                    const vector<Vector3D> &normals,
-                   const vector<TextureCoordinates> &textureCoordinates,
-                   const Texture &texture) {
+                   const vector<TextureCoordinates> &textureCoordinates) {
         // Validation
         string s1, s2, s3;
         if (!(iss >> s1) || !(iss >> s2) || !(iss >> s3)) {
@@ -486,6 +489,9 @@ private:
                     );
                     break;
                 case FLAT_TEXTURED:
+                    if (textures.size() == 0) {
+                        throw "Textured face given without valid texture";
+                    }
                     t1 = ty1_v1_t1_n1[2] - 1;
                     t2 = ty2_v2_t2_n2[2] - 1;
                     t3 = ty3_v3_t3_n3[2] - 1;
@@ -496,7 +502,7 @@ private:
                             Triangle(vertices[v1], vertices[v2], vertices[v3],
                                      materialColor,
                                      textureCoordinates[t1], textureCoordinates[t2], textureCoordinates[t3],
-                                     texture)
+                                     textures.size() - 1)
                     );
                     break;
                 case SMOOTH_TEXTURE_LESS:
@@ -522,6 +528,9 @@ private:
                     t1 = ty1_v1_t1_n1[2] - 1;
                     t2 = ty2_v2_t2_n2[2] - 1;
                     t3 = ty3_v3_t3_n3[2] - 1;
+                    if (textures.size() == 0) {
+                        throw "Textured face given without valid texture";
+                    }
                     if (min(t1, min(t2, t3)) < 0 || max(t1, max(t2, t3)) >= textureCoordinates.size()) {
                         throw "Texture coordinates indices out of bounds";
                     }
@@ -530,7 +539,7 @@ private:
                                      materialColor,
                                      normals[n1], normals[n2], normals[n3],
                                      textureCoordinates[t1], textureCoordinates[t2], textureCoordinates[t3],
-                                     texture)
+                                     textures.size() - 1)
                     );
                     break;
                 default:

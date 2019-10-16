@@ -2,7 +2,6 @@
 #define TRIANGLE_HPP
 
 #include "color.hpp"
-#include "texture.hpp"
 #include "texturecoordinates.hpp"
 #include <vector>
 
@@ -22,7 +21,7 @@ public:
     const Vector3D n1, n2, n3;
     const TextureCoordinates t1, t2, t3;
     const MaterialColor materialColor;
-    const Texture texture;
+    const int textureIndex;
     const Vector3D surfaceNormal;
     const float D;
     const float area;
@@ -37,7 +36,7 @@ public:
               v1(v1), v2(v2), v3(v3),
               n1(Vector3D()), n2(Vector3D()), n3(Vector3D()),
               t1(TextureCoordinates()), t2(TextureCoordinates()), t3(TextureCoordinates()),
-              texture(Texture()),
+              textureIndex(-1),
               materialColor(materialColor),
               surfaceNormal((v2 - v1).cross(v3 - v1)),
               D(-v1.dot(surfaceNormal)),
@@ -51,7 +50,7 @@ public:
               v1(v1), v2(v2), v3(v3),
               n1(n1), n2(n2), n3(n3),
               t1(TextureCoordinates()), t2(TextureCoordinates()), t3(TextureCoordinates()),
-              texture(Texture()),
+              textureIndex(-1),
               materialColor(materialColor),
               surfaceNormal((v2 - v1).cross(v3 - v1)),
               D(-v1.dot(surfaceNormal)),
@@ -61,12 +60,12 @@ public:
     Triangle(Vector3D v1, Vector3D v2, Vector3D v3,
              MaterialColor materialColor,
              TextureCoordinates t1, TextureCoordinates t2, TextureCoordinates t3,
-             const Texture &texture)
+             int textureIndex)
             : type(FLAT_TEXTURED),
               v1(v1), v2(v2), v3(v3),
               n1(Vector3D()), n2(Vector3D()), n3(Vector3D()),
               t1(t1), t2(t2), t3(t3),
-              texture(texture),
+              textureIndex(textureIndex),
               materialColor(materialColor),
               surfaceNormal((v2 - v1).cross(v3 - v1)),
               D(-v1.dot(surfaceNormal)),
@@ -77,12 +76,12 @@ public:
              MaterialColor materialColor,
              Vector3D n1, Vector3D n2, Vector3D n3,
              TextureCoordinates t1, TextureCoordinates t2, TextureCoordinates t3,
-             const Texture &texture)
+             int textureIndex)
             : type(SMOOTH_TEXTURED),
               v1(v1), v2(v2), v3(v3),
               n1(n1), n2(n2), n3(n3),
               t1(t1), t2(t2), t3(t3),
-              texture(texture),
+              textureIndex(textureIndex),
               materialColor(materialColor),
               surfaceNormal((v2 - v1).cross(v3 - v1)),
               D(-v1.dot(surfaceNormal)),
@@ -117,7 +116,7 @@ std::ostream &operator<<(std::ostream &out, const Triangle &t) {
         << "\t" << t.v1 << "\t" << t.v2 << "\t" << t.v3 << "\n"
         << "\t" << t.n1 << "\t" << t.n2 << "\t" << t.n3 << "\n"
         << "\t" << "Surface normal: " << "\t" << t.surfaceNormal << "\t" << "D: " << "\t" << t.D << "\n"
-        << "\t" << "Texture: " << "\t" << t.texture << "\n"
+        << "\t" << "TextureIndex: " << "\t" << t.textureIndex << "\n"
         << "\t" << t.materialColor;
     return out;
 }
