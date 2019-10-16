@@ -3,6 +3,7 @@
 
 #include "color.hpp"
 #include "texture.hpp"
+#include "texturecoordinates.hpp"
 #include <vector>
 
 using namespace std;
@@ -19,6 +20,7 @@ public:
     const TriangleRenderType type;
     const Vector3D v1, v2, v3;
     const Vector3D n1, n2, n3;
+    const TextureCoordinates t1, t2, t3;
     const MaterialColor materialColor;
     const Texture texture;
     const Vector3D surfaceNormal;
@@ -34,21 +36,23 @@ public:
             : type(FLAT_TEXTURE_LESS),
               v1(v1), v2(v2), v3(v3),
               n1(Vector3D()), n2(Vector3D()), n3(Vector3D()),
-              materialColor(materialColor),
+              t1(TextureCoordinates()), t2(TextureCoordinates()), t3(TextureCoordinates()),
               texture(Texture()),
+              materialColor(materialColor),
               surfaceNormal((v2 - v1).cross(v3 - v1)),
               D(-v1.dot(surfaceNormal)),
               area((v2 - v1).cross(v3 - v1).abs() / 2) {}
 
     // SMOOTH_TEXTURE_LESS: Concisely initialized: surface normal = (v2 - v1) cross (v3 - v1), D = - (v1 dot normal), area
     Triangle(Vector3D v1, Vector3D v2, Vector3D v3,
-             Vector3D n1, Vector3D n2, Vector3D n3,
-             MaterialColor materialColor)
+             MaterialColor materialColor,
+             Vector3D n1, Vector3D n2, Vector3D n3)
             : type(SMOOTH_TEXTURE_LESS),
               v1(v1), v2(v2), v3(v3),
               n1(n1), n2(n2), n3(n3),
-              materialColor(materialColor),
+              t1(TextureCoordinates()), t2(TextureCoordinates()), t3(TextureCoordinates()),
               texture(Texture()),
+              materialColor(materialColor),
               surfaceNormal((v2 - v1).cross(v3 - v1)),
               D(-v1.dot(surfaceNormal)),
               area((v2 - v1).cross(v3 - v1).abs() / 2) {}
@@ -56,12 +60,14 @@ public:
     // FLAT_TEXTURE_LESS: Concisely initialized: surface normal = (v2 - v1) cross (v3 - v1), D = - (v1 dot normal), area
     Triangle(Vector3D v1, Vector3D v2, Vector3D v3,
              MaterialColor materialColor,
+             TextureCoordinates t1, TextureCoordinates t2, TextureCoordinates t3,
              const Texture &texture)
             : type(FLAT_TEXTURE_LESS),
               v1(v1), v2(v2), v3(v3),
               n1(Vector3D()), n2(Vector3D()), n3(Vector3D()),
-              materialColor(materialColor),
+              t1(t1), t2(t2), t3(t3),
               texture(texture),
+              materialColor(materialColor),
               surfaceNormal((v2 - v1).cross(v3 - v1)),
               D(-v1.dot(surfaceNormal)),
               area((v2 - v1).cross(v3 - v1).abs() / 2) {}

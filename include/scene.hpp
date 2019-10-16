@@ -6,6 +6,7 @@
 #include <sstream>
 #include "light.hpp"
 #include "texture.hpp"
+#include "texturecoordinates.hpp"
 
 using namespace std;
 
@@ -63,6 +64,7 @@ public:
         Texture texture;
         vector<Vector3D> vertices;
         vector<Vector3D> normals;
+        vector<TextureCoordinates> textureCoordinates;
         bool materialColorExists = false;
 
         cout << "Parsing file \"" << this->filename << "\"." << endl;
@@ -138,6 +140,11 @@ public:
                     input.close();
                     return false;
                 }
+            } else if (keyword == "vd") {
+                if (!this->parseTextureCoordinates(iss, textureCoordinates)) {
+                    input.close();
+                    return false;
+                }
             } else if (keyword == "sphere") {
                 if (!materialColorExists) {
                     cerr << "Sphere information found without preceding mtl color" << endl;
@@ -152,7 +159,7 @@ public:
                     cerr << "Face information found without preceding mtl color" << endl;
                     return false;
                 }
-                if (!this->parseFace(iss, vertices, normals, materialColor, texture)) {
+                if (!this->parseFace(iss, vertices, materialColor, normals, textureCoordinates, texture)) {
                     input.close();
                     return false;
                 }
@@ -378,6 +385,18 @@ private:
         return true;
     }
 
+    bool parseTextureCoordinates(istringstream &iss, vector<TextureCoordinates> &textureCoordinates) {
+        // Validation
+        float u, v;
+        if (!(iss >> u) || !(iss >> v)) {
+            cerr << "Texture coordinates incomplete" << endl;
+            return false;
+        }
+        // Setting scene variable
+        textureCoordinates.emplace_back(TextureCoordinates(u, v));
+        return true;
+    }
+
     // Returns a four sized vector of ints specifying face type, vertex, texture and normal indices
     // If any index is not specified 0 is returned (all valid indices are >= 1 anyway)
     vector<int> parseFaceVertex(const string &vertex) {
@@ -418,19 +437,18 @@ private:
 
     bool parseFace(istringstream &iss,
                    const vector<Vector3D> &vertices,
-                   const vector<Vector3D> &normals,
                    const MaterialColor &materialColor,
-                   const Texture& texture) {
+                   const vector<Vector3D> &normals,
+                   const vector<TextureCoordinates> &textureCoordinates,
+                   const Texture &texture) {
         // Validation
         string s1, s2, s3;
         if (!(iss >> s1) || !(iss >> s2) || !(iss >> s3)) {
             cerr << "Face indices incomplete" << endl;
             return false;
         }
-        // Parsing indices of face
-        int v1, v2, v3;
-        int n1, n2, n3;
         try {
+            // Parsing indices of face
             vector<int> t1_v1_t1_n1 = parseFaceVertex(s1);
             vector<int> t2_v2_t2_n2 = parseFaceVertex(s2);
             vector<int> t3_v3_t3_n3 = parseFaceVertex(s3);
@@ -439,9 +457,9 @@ private:
                 throw "Inconsistent face definition";
             }
             // Vertex validation
-            v1 = t1_v1_t1_n1[1] - 1;
-            v2 = t2_v2_t2_n2[1] - 1;
-            v3 = t3_v3_t3_n3[1] - 1;
+            int v1 = t1_v1_t1_n1[1] - 1;
+            int v2 = t2_v2_t2_n2[1] - 1;
+            int v3 = t3_v3_t3_n3[1] - 1;
             // Bounds validation
             if (min(v1, min(v2, v3)) < 0 || max(v1, max(v2, v3)) >= vertices.size()) {
                 throw "Face indices out of bounds";
@@ -462,9 +480,22 @@ private:
                     );
                     break;
                 case FLAT_TEXTURED:
-                    // todo
+                    int t1, t2, t3;
+                    t1 = t1_v1_t1_n1[2] - 1;
+                    t2 = t2_v2_t2_n2[2] - 1;
+                    t3 = t3_v3_t3_n3[2] - 1;
+                    if (min(t1, min(t2, t3)) < 0 || max(t1, max(t2, t3)) >= textureCoordinates.size()) {
+                        throw "Texture coordinates indices out of bounds";
+                    }
+                    this->triangles.emplace_back(
+                            Triangle(vertices[v1], vertices[v2], vertices[v3],
+                                     materialColor,
+                                     textureCoordinates[t1], textureCoordinates[t2], textureCoordinates[t3],
+                                     texture)
+                    );
                     break;
                 case SMOOTH_TEXTURE_LESS:
+                    int n1, n2, n3;
                     n1 = t1_v1_t1_n1[3] - 1;
                     n2 = t2_v2_t2_n2[3] - 1;
                     n3 = t3_v3_t3_n3[3] - 1;
@@ -473,8 +504,8 @@ private:
                     }
                     this->triangles.emplace_back(
                             Triangle(vertices[v1], vertices[v2], vertices[v3],
-                                     normals[v1], normals[v2], normals[v3],
-                                     materialColor)
+                                     materialColor,
+                                     normals[n1], normals[n2], normals[n3])
                     );
                     break;
                 case SMOOTH_TEXTURED:
