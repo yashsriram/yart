@@ -39,14 +39,6 @@ public:
 
     Texture(const string &filename) : filename(filename), width(0), height(0), pixelMax(0) {}
 
-    void operator=(const Texture &b) {
-        this->filename = b.filename;
-        this->width = 0;
-        this->height = 0;
-        this->pixelMax = 0;
-        this->pixels.clear();
-    }
-
     bool isValid() const {
         return width > 0 && height > 0;
     }

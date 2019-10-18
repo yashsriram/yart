@@ -25,6 +25,7 @@ public:
     int imWidth;
     int imHeight;
     Color bgColor;
+    bool isParallelProjection;
 
     // Scene optional
     vector<Sphere> spheres;
@@ -36,7 +37,8 @@ public:
     Scene(const string &filename) : filename(filename),
                                     eye(Vector3D()), viewDir(Vector3D()), upDir(Vector3D()),
                                     vFovDeg(0), imWidth(0), imHeight(0),
-                                    bgColor(Color()) {}
+                                    bgColor(Color()),
+                                    isParallelProjection(false) {}
 
     // Reads the scene description and validates it
     // If everything is valid returns true else returns false and prints and error message
@@ -119,7 +121,9 @@ public:
                 criticalInputCheck[keyword] = 1;
             }
                 // Non-critical or optional input
-            else if (keyword == "mtlcolor") {
+            else if (keyword == "parallel") {
+                isParallelProjection = true;
+            } else if (keyword == "mtlcolor") {
                 if (!this->parseMtlColor(iss, materialColor)) {
                     input.close();
                     return false;
@@ -595,6 +599,7 @@ private:
 // this is to easily print a given object in a well-formatted manner to std for debugging
 std::ostream &operator<<(std::ostream &out, const Scene &s) {
     out << "==== Scene ====" << endl;
+    out << "Projtn:\t" << (s.isParallelProjection ? "Parallel" : "Perspective") << endl;
     out << "Eye:\t" << s.eye << endl;
     out << "V dir:\t" << s.viewDir << endl;
     out << "Up dir:\t" << s.upDir << endl;
