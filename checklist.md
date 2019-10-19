@@ -18,5 +18,5 @@ Features
     - [x] texture mapping on triangles
     - [x] texture mapping + smooth shading on triangles
     - [x] parallel projection
-    - [ ] texture mapping on spheres
+    - [x] texture mapping on spheres
     - [ ] example ppms

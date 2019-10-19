@@ -237,23 +237,19 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < scene.imWidth; i++) {
             // (i, j) pixel coordinate
             Vector3D pixelCoordinate = ul + delWidth * i + delHeight * j;
+            Ray ray;
             if (scene.isParallelProjection) {
                 // ray from pixel projection on eye plane in direction of normal to image plane
-                Ray ray(pixelCoordinate - scene.viewDir.unit() * d, scene.viewDir);
-                // trace this ray in the scene to produce a color for the pixel
-                pair<int, float> minTIndex_minT = traceRay(ray, scene);
-                Color color = calculateColor(ray, scene, minTIndex_minT.first, minTIndex_minT.second);
-                // Keep track of color
-                colors[i][j] = color;
+                ray = Ray(pixelCoordinate - scene.viewDir.unit() * d, scene.viewDir);
             } else {
                 // ray from eye to that pixel
-                Ray ray(scene.eye, (pixelCoordinate - scene.eye).unit());
-                // trace this ray in the scene to produce a color for the pixel
-                pair<int, float> minTIndex_minT = traceRay(ray, scene);
-                Color color = calculateColor(ray, scene, minTIndex_minT.first, minTIndex_minT.second);
-                // Keep track of color
-                colors[i][j] = color;
+                ray = Ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             }
+            // trace this ray in the scene to produce a color for the pixel
+            pair<int, float> minTIndex_minT = traceRay(ray, scene);
+            Color color = calculateColor(ray, scene, minTIndex_minT.first, minTIndex_minT.second);
+            // Keep track of color
+            colors[i][j] = color;
         }
     }
 
