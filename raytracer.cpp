@@ -110,9 +110,18 @@ Color calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float mi
             Vector3D poi = ray.getPoint(minT);
             Vector3D N = (poi - sphere.center).unit();
             Vector3D V = (scene.eye - poi).unit();
+            Color diffusion;
+            // Diffusion color based on texture
+            if (sphere.renderType == TEXTURE_LESS) {
+                diffusion = color.diffusion;
+            } else {
+                float phi = acos(N.y);
+                float theta = atan2(N.x, N.z);
+                TextureCoordinates textureCoordinates((theta + M_PI) / (2 * M_PI), phi / M_PI);
+                diffusion = scene.textures[sphere.textureIndex].colorAt(textureCoordinates);
+            }
             // First term of blinn-phong model
-            Color phongColor = color.diffusion * color.ka;
-
+            Color phongColor = diffusion * color.ka;
             for (auto &light: scene.lights) {
                 // Shadow factor determination
                 float S = 0;
@@ -125,7 +134,7 @@ Color calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float mi
                 // Second and third terms of blinn-phong model
                 Vector3D Li = light.poiToLightUnitVector(poi);
                 Vector3D Hi = (Li + V).unit();
-                Color secondTerm = color.diffusion * color.kd * max(0.0, (double) N.dot(Li));
+                Color secondTerm = diffusion * color.kd * max(0.0, (double) N.dot(Li));
                 Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
                 Color weightedTerm = (secondTerm + thirdTerm) * light.color * S;
                 phongColor = phongColor + weightedTerm;
@@ -140,17 +149,18 @@ Color calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float mi
             Vector3D V = (scene.eye - poi).unit();
             Vector3D N;
             Color diffusion;
-            if (triangle.type == FLAT_TEXTURE_LESS) {
+            // Diffusion color and normal based on texture and smoothness
+            if (triangle.renderType == FLAT_TEXTURE_LESS) {
                 N = triangle.surfaceNormal.unit();
                 diffusion = color.diffusion;
-            } else if (triangle.type == FLAT_TEXTURED) {
+            } else if (triangle.renderType == FLAT_TEXTURED) {
                 N = triangle.surfaceNormal.unit();
                 TextureCoordinates textureCoordinates = triangle.getInterpolatedTextureCoordinates(poi);
                 diffusion = scene.textures[triangle.textureIndex].colorAt(textureCoordinates);
-            } else if (triangle.type == SMOOTH_TEXTURE_LESS) {
+            } else if (triangle.renderType == SMOOTH_TEXTURE_LESS) {
                 N = triangle.getInterpolatedNormal(poi);
                 diffusion = color.diffusion;
-            } else if (triangle.type == SMOOTH_TEXTURED) {
+            } else if (triangle.renderType == SMOOTH_TEXTURED) {
                 N = triangle.getInterpolatedNormal(poi);
                 TextureCoordinates textureCoordinates = triangle.getInterpolatedTextureCoordinates(poi);
                 diffusion = scene.textures[triangle.textureIndex].colorAt(textureCoordinates);

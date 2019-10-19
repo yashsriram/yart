@@ -40,7 +40,7 @@ float smallestNonNegativeT(const Ray &ray, const Sphere &sphere, float grace) {
 }
 
 // Returns smallest positive t (ray parameter) if intersection does occurs in-front of the origin else returns -1
-// Independent of type of triangle
+// Independent of renderType of triangle
 float smallestNonNegativeT(const Ray &ray, const Triangle &triangle, float grace) {
     float denominator = triangle.surfaceNormal.dot(ray.direction);
     float numerator = -(triangle.surfaceNormal.dot(ray.origin) + triangle.D);

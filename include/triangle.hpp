@@ -16,7 +16,7 @@ enum TriangleRenderType {
 
 class Triangle {
 public:
-    const TriangleRenderType type;
+    const TriangleRenderType renderType;
     const Vector3D v1, v2, v3;
     const Vector3D n1, n2, n3;
     const TextureCoordinates t1, t2, t3;
@@ -32,7 +32,7 @@ public:
     // FLAT_TEXTURE_LESS: Concisely initialized: surface normal = (v2 - v1) cross (v3 - v1), D = - (v1 dot normal), area
     Triangle(Vector3D v1, Vector3D v2, Vector3D v3,
              MaterialColor materialColor)
-            : type(FLAT_TEXTURE_LESS),
+            : renderType(FLAT_TEXTURE_LESS),
               v1(v1), v2(v2), v3(v3),
               n1(Vector3D()), n2(Vector3D()), n3(Vector3D()),
               t1(TextureCoordinates()), t2(TextureCoordinates()), t3(TextureCoordinates()),
@@ -46,7 +46,7 @@ public:
     Triangle(Vector3D v1, Vector3D v2, Vector3D v3,
              MaterialColor materialColor,
              Vector3D n1, Vector3D n2, Vector3D n3)
-            : type(SMOOTH_TEXTURE_LESS),
+            : renderType(SMOOTH_TEXTURE_LESS),
               v1(v1), v2(v2), v3(v3),
               n1(n1), n2(n2), n3(n3),
               t1(TextureCoordinates()), t2(TextureCoordinates()), t3(TextureCoordinates()),
@@ -61,7 +61,7 @@ public:
              MaterialColor materialColor,
              TextureCoordinates t1, TextureCoordinates t2, TextureCoordinates t3,
              int textureIndex)
-            : type(FLAT_TEXTURED),
+            : renderType(FLAT_TEXTURED),
               v1(v1), v2(v2), v3(v3),
               n1(Vector3D()), n2(Vector3D()), n3(Vector3D()),
               t1(t1), t2(t2), t3(t3),
@@ -77,7 +77,7 @@ public:
              Vector3D n1, Vector3D n2, Vector3D n3,
              TextureCoordinates t1, TextureCoordinates t2, TextureCoordinates t3,
              int textureIndex)
-            : type(SMOOTH_TEXTURED),
+            : renderType(SMOOTH_TEXTURED),
               v1(v1), v2(v2), v3(v3),
               n1(n1), n2(n2), n3(n3),
               t1(t1), t2(t2), t3(t3),
@@ -113,11 +113,11 @@ public:
 
 std::ostream &operator<<(std::ostream &out, const Triangle &t) {
     string type;
-    if (t.type == FLAT_TEXTURE_LESS) {
+    if (t.renderType == FLAT_TEXTURE_LESS) {
         type = "FLAT_TEXTURE_LESS";
-    } else if (t.type == FLAT_TEXTURED) {
+    } else if (t.renderType == FLAT_TEXTURED) {
         type = "FLAT_TEXTURED";
-    } else if (t.type == SMOOTH_TEXTURE_LESS) {
+    } else if (t.renderType == SMOOTH_TEXTURE_LESS) {
         type = "SMOOTH_TEXTURE_LESS";
     } else {
         type = "SMOOTH_TEXTURED";

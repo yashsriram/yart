@@ -154,7 +154,7 @@ public:
                     cerr << "Sphere information found without preceding mtl color" << endl;
                     return false;
                 }
-                if (!this->parseSphere(iss, materialColor)) {
+                if (!this->parseSphere(iss, materialColor, textures)) {
                     input.close();
                     return false;
                 }
@@ -350,7 +350,7 @@ private:
         return true;
     }
 
-    bool parseSphere(istringstream &iss, const MaterialColor &color) {
+    bool parseSphere(istringstream &iss, const MaterialColor &color, const vector<Texture> &textures) {
         float x, y, z, rad;
         if (!(iss >> x) || !(iss >> y) || !(iss >> z)) {
             cerr << "Sphere coordinates incomplete" << endl;
@@ -364,8 +364,13 @@ private:
             cerr << "Sphere radius is non-positive" << endl;
             return false;
         }
-        // Setting scene variable
-        this->spheres.emplace_back(Vector3D(x, y, z), rad, color);
+        if (textures.empty()) {
+            // Setting scene variable
+            this->spheres.emplace_back(Vector3D(x, y, z), rad, color);
+        } else {
+            // Setting scene variable
+            this->spheres.emplace_back(Vector3D(x, y, z), rad, color, textures.size() - 1);
+        }
         return true;
     }
 
@@ -409,7 +414,7 @@ private:
         return true;
     }
 
-    // Returns a four sized vector of ints specifying face type, vertex, texture and normal indices
+    // Returns a four sized vector of ints specifying face renderType, vertex, texture and normal indices
     // If any index is not specified 0 is returned (all valid indices are >= 1 anyway)
     vector<int> parseFaceVertex(const string &vertex) {
         vector<int> ans;
@@ -493,7 +498,7 @@ private:
                     );
                     break;
                 case FLAT_TEXTURED:
-                    if (textures.size() == 0) {
+                    if (textures.empty()) {
                         throw "Textured face given without valid texture";
                     }
                     t1 = ty1_v1_t1_n1[2] - 1;
@@ -532,7 +537,7 @@ private:
                     t1 = ty1_v1_t1_n1[2] - 1;
                     t2 = ty2_v2_t2_n2[2] - 1;
                     t3 = ty3_v3_t3_n3[2] - 1;
-                    if (textures.size() == 0) {
+                    if (textures.empty()) {
                         throw "Textured face given without valid texture";
                     }
                     if (min(t1, min(t2, t3)) < 0 || max(t1, max(t2, t3)) >= textureCoordinates.size()) {
@@ -547,7 +552,7 @@ private:
                     );
                     break;
                 default:
-                    throw "Unknown face type";
+                    throw "Unknown face renderType";
             }
         } catch (exception &e) {
             cerr << "Error while parsing face: " << e.what() << endl;

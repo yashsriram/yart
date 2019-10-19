@@ -30,7 +30,7 @@ public:
 std::ostream &operator<<(std::ostream &out, const Light &l) {
     out << "Light:" << "\t";
     out << l.vector << "\t";
-    out << "type: ";
+    out << "renderType: ";
     l.type == 0 ? out << "Directional" << "\t" : out << "Point" << "\t";
     out << l.color << "\t";
     return out;
