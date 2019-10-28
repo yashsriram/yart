@@ -127,6 +127,7 @@ std::ostream &operator<<(std::ostream &out, const Triangle &t) {
         << "\t" << t.v1 << "\t" << t.v2 << "\t" << t.v3 << "\n"
         << "\t" << t.n1 << "\t" << t.n2 << "\t" << t.n3 << "\n"
         << "\t" << "Surface normal: " << "\t" << t.surfaceNormal << "\t" << "D: " << "\t" << t.D << "\n"
+        << "\t" << "Area: " << "\t" << t.area << "\t" << "D: " << "\t" << t.D << "\n"
         << "\t" << "TextureIndex: " << "\t" << t.textureIndex << "\n"
         << "\t" << t.materialColor;
     return out;
