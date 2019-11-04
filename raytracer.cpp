@@ -19,6 +19,7 @@ using namespace std;
 #endif
 
 #define SHADOW_GRACE 1e-4
+#define RECURSIVE_RAY_GRACE 1e-4
 #define SOFT_SHADOW_JITTER 0
 #define NUM_SHADOW_RAYS_PER_POI 1
 
@@ -93,101 +94,123 @@ int isUnderShadow(const Vector3D &poi, const Vector3D &Li, const Light &light, c
     return S;
 }
 
-// Given ray, scene and intersecting object and point returns appropriate color to fill in the corresponding pixel of output image
-Color calculateColor(const Ray &ray, const Scene &scene, int minTIndex, float minT) {
-    int noSpheres = scene.spheres.size();
-    // No intersection with anything
-    if (minTIndex < 0) {
-        // Return variant of bg color
-        return scene.bgColor;
+// Given ray, scene and intersecting object and point
+// returns appropriate color to fill in the corresponding pixel of output image
+Color phongColorForSphere(const Ray &ray, const Scene &scene, const Sphere &sphere, float t) {
+    // Blinn-phong illumination model
+    // I = Od * ka + Sum over lights [Si * Ilight (Od * kd * (N.L) + Os * ks * (N.H)^n)]
+    // Intersection with a sphere
+    MaterialColor color = sphere.materialColor;
+    Vector3D poi = ray.getPoint(t);
+    Vector3D N = (poi - sphere.center).unit();
+    Vector3D V = (scene.eye - poi).unit();
+    Color diffusion;
+    // Diffusion color based on texture
+    if (sphere.renderType == TEXTURE_LESS) {
+        diffusion = color.diffusion;
     } else {
-        // Blinn-phong illumination model
-        // I = Od * ka + Sum over lights [Si * Ilight (Od * kd * (N.L) + Os * ks * (N.H)^n)]
-        if (minTIndex < noSpheres) {
-            // Intersection with a sphere
-            Sphere sphere = scene.spheres[minTIndex];
-            MaterialColor color = sphere.materialColor;
-            Vector3D poi = ray.getPoint(minT);
-            Vector3D N = (poi - sphere.center).unit();
-            Vector3D V = (scene.eye - poi).unit();
-            Color diffusion;
-            // Diffusion color based on texture
-            if (sphere.renderType == TEXTURE_LESS) {
-                diffusion = color.diffusion;
-            } else {
-                float phi = acos(N.y);
-                float theta = atan2(N.x, N.z);
-                TextureCoordinates textureCoordinates((theta + M_PI) / (2 * M_PI), phi / M_PI);
-                diffusion = scene.textures[sphere.textureIndex].colorAt(textureCoordinates);
-            }
-            // First term of blinn-phong model
-            Color phongColor = diffusion * color.ka;
-            for (auto &light: scene.lights) {
-                // Shadow factor determination
-                float S = 0;
-                for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
-                    Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
-                    S += (float) isUnderShadow(poi, Lj, light, scene);
-                }
-                S = S / NUM_SHADOW_RAYS_PER_POI;
-
-                // Second and third terms of blinn-phong model
-                Vector3D Li = light.poiToLightUnitVector(poi);
-                Vector3D Hi = (Li + V).unit();
-                Color secondTerm = diffusion * color.kd * max(0.0, (double) N.dot(Li));
-                Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
-                Color weightedTerm = (secondTerm + thirdTerm) * light.color * S;
-                phongColor = phongColor + weightedTerm;
-            }
-
-            return phongColor;
-        } else {
-            // Intersection with an Triangle
-            Triangle triangle = scene.triangles[minTIndex - noSpheres];
-            MaterialColor color = triangle.materialColor;
-            Vector3D poi = ray.getPoint(minT);
-            Vector3D V = (scene.eye - poi).unit();
-            Vector3D N;
-            Color diffusion;
-            // Diffusion color and normal based on texture and smoothness
-            if (triangle.renderType == FLAT_TEXTURE_LESS) {
-                N = triangle.surfaceNormal.unit();
-                diffusion = color.diffusion;
-            } else if (triangle.renderType == FLAT_TEXTURED) {
-                N = triangle.surfaceNormal.unit();
-                TextureCoordinates textureCoordinates = triangle.getInterpolatedTextureCoordinates(poi);
-                diffusion = scene.textures[triangle.textureIndex].colorAt(textureCoordinates);
-            } else if (triangle.renderType == SMOOTH_TEXTURE_LESS) {
-                N = triangle.getInterpolatedNormal(poi);
-                diffusion = color.diffusion;
-            } else if (triangle.renderType == SMOOTH_TEXTURED) {
-                N = triangle.getInterpolatedNormal(poi);
-                TextureCoordinates textureCoordinates = triangle.getInterpolatedTextureCoordinates(poi);
-                diffusion = scene.textures[triangle.textureIndex].colorAt(textureCoordinates);
-            }
-            // First term of blinn-phong model
-            Color phongColor = diffusion * color.ka;
-            for (auto &light: scene.lights) {
-                // Shadow factor determination
-                float S = 0;
-                for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
-                    Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
-                    S += (float) isUnderShadow(poi, Lj, light, scene);
-                }
-                S = S / NUM_SHADOW_RAYS_PER_POI;
-
-                // Second and third terms of blinn-phong model
-                Vector3D Li = light.poiToLightUnitVector(poi);
-                Vector3D Hi = (Li + V).unit();
-                Color secondTerm = diffusion * color.kd * max(0.0, (double) N.dot(Li));
-                Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
-                Color weightedTerm = (secondTerm + thirdTerm) * light.color * S;
-                phongColor = phongColor + weightedTerm;
-            }
-
-            return phongColor;
-        }
+        float phi = acos(N.y);
+        float theta = atan2(N.x, N.z);
+        TextureCoordinates textureCoordinates((theta + M_PI) / (2 * M_PI), phi / M_PI);
+        diffusion = scene.textures[sphere.textureIndex].colorAt(textureCoordinates);
     }
+    // First term of blinn-phong model
+    Color phongColor = diffusion * color.ka;
+    for (auto &light: scene.lights) {
+        // Shadow factor determination
+        float S = 0;
+        for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
+            Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
+            S += (float) isUnderShadow(poi, Lj, light, scene);
+        }
+        S = S / NUM_SHADOW_RAYS_PER_POI;
+
+        // Second and third terms of blinn-phong model
+        Vector3D Li = light.poiToLightUnitVector(poi);
+        Vector3D Hi = (Li + V).unit();
+        Color secondTerm = diffusion * color.kd * max(0.0, (double) N.dot(Li));
+        Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
+        Color weightedTerm = (secondTerm + thirdTerm) * light.color * S;
+        phongColor = phongColor + weightedTerm;
+    }
+
+    return phongColor;
+}
+
+// Given ray, scene and intersecting object and point
+// returns appropriate color to fill in the corresponding pixel of output image
+Color phongColorForTriangle(const Ray &ray, const Scene &scene, const Triangle &triangle, float t) {
+    // Blinn-phong illumination model
+    // I = Od * ka + Sum over lights [Si * Ilight (Od * kd * (N.L) + Os * ks * (N.H)^n)]
+    // Intersection with an Triangle
+    MaterialColor color = triangle.materialColor;
+    Vector3D poi = ray.getPoint(t);
+    Vector3D V = (scene.eye - poi).unit();
+    Vector3D N;
+    Color diffusion;
+    // Diffusion color and normal based on texture and smoothness
+    if (triangle.renderType == FLAT_TEXTURE_LESS) {
+        N = triangle.surfaceNormal.unit();
+        diffusion = color.diffusion;
+    } else if (triangle.renderType == FLAT_TEXTURED) {
+        N = triangle.surfaceNormal.unit();
+        TextureCoordinates textureCoordinates = triangle.getInterpolatedTextureCoordinates(poi);
+        diffusion = scene.textures[triangle.textureIndex].colorAt(textureCoordinates);
+    } else if (triangle.renderType == SMOOTH_TEXTURE_LESS) {
+        N = triangle.getInterpolatedNormal(poi);
+        diffusion = color.diffusion;
+    } else if (triangle.renderType == SMOOTH_TEXTURED) {
+        N = triangle.getInterpolatedNormal(poi);
+        TextureCoordinates textureCoordinates = triangle.getInterpolatedTextureCoordinates(poi);
+        diffusion = scene.textures[triangle.textureIndex].colorAt(textureCoordinates);
+    }
+    // First term of blinn-phong model
+    Color phongColor = diffusion * color.ka;
+    for (auto &light: scene.lights) {
+        // Shadow factor determination
+        float S = 0;
+        for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
+            Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
+            S += (float) isUnderShadow(poi, Lj, light, scene);
+        }
+        S = S / NUM_SHADOW_RAYS_PER_POI;
+
+        // Second and third terms of blinn-phong model
+        Vector3D Li = light.poiToLightUnitVector(poi);
+        Vector3D Hi = (Li + V).unit();
+        Color secondTerm = diffusion * color.kd * max(0.0, (double) N.dot(Li));
+        Color thirdTerm = color.specular * color.ks * pow(max(0.0, (double) N.dot(Hi)), color.n);
+        Color weightedTerm = (secondTerm + thirdTerm) * light.color * S;
+        phongColor = phongColor + weightedTerm;
+    }
+
+    return phongColor;
+}
+
+Color traceRayRecursive(const Ray &ray, const Scene &scene, int depth = 0, float prevRefractiveIndex = 1) {
+    pair<int, float> minTIndex_minT = traceRay(ray, scene);
+    int objIndex = minTIndex_minT.first;
+    float paramT = minTIndex_minT.second;
+    if (objIndex < 0) {
+        // no intersection with anything
+        // return variant of bg color
+        return scene.bgColor;
+    }
+    Color R;
+    if (objIndex >= 0 && depth > 0) {
+        // ray intersects an object and can still recurse
+    }
+    // phongColor = ambient + diffuse + specular + shadows
+    Color phongColor;
+    int noSpheres = scene.spheres.size();
+    if (objIndex < noSpheres) {
+        Sphere sphere = scene.spheres[objIndex];
+        phongColor = phongColorForSphere(ray, scene, sphere, paramT);
+    } else {
+        Triangle triangle = scene.triangles[objIndex - noSpheres];
+        phongColor = phongColorForTriangle(ray, scene, triangle, paramT);
+    }
+    return phongColor + R;
 }
 
 int main(int argc, char *argv[]) {
@@ -245,9 +268,8 @@ int main(int argc, char *argv[]) {
                 // ray from eye to that pixel
                 ray = Ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             }
-            // trace this ray in the scene to produce a color for the pixel
-            pair<int, float> minTIndex_minT = traceRay(ray, scene);
-            Color color = calculateColor(ray, scene, minTIndex_minT.first, minTIndex_minT.second);
+            // trace this ray in the scene recursively to produce a color for the pixel
+            Color color = traceRayRecursive(ray, scene);
             // Keep track of color
             colors[i][j] = color;
         }
