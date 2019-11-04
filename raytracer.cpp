@@ -185,8 +185,8 @@ Color phongColorForTriangle(const Ray &ray, const Scene &scene, const Triangle &
     return phongColor;
 }
 
-Color traceRayRecursive(const Ray &ray, const Scene &scene, int depth = 0, float prevRI = 1) {
-    pair<int, float> minTIndex_minT = traceRay(ray, scene, 1e-4);
+Color traceRayRecursive(const Ray &ray, const Scene &scene, float grace, int depth, float prevRI) {
+    pair<int, float> minTIndex_minT = traceRay(ray, scene, grace);
     int objIndex = minTIndex_minT.first;
     float paramT = minTIndex_minT.second;
     int noSpheres = scene.spheres.size();
@@ -219,7 +219,7 @@ Color traceRayRecursive(const Ray &ray, const Scene &scene, int depth = 0, float
             float Fr = F0 + (1 - F0) * pow((1 - cosTheta), 5);
             Vector3D R = (N * 2 * cosTheta - I).unit();
             Ray reflectedRay(poi, R);
-            reflectiveColor = traceRayRecursive(reflectedRay, scene, depth - 1, nextRI);
+            reflectiveColor = traceRayRecursive(reflectedRay, scene, grace, depth - 1, nextRI);
             reflectiveColor = reflectiveColor * Fr;
         }
     }
@@ -292,7 +292,7 @@ int main(int argc, char *argv[]) {
                 ray = Ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             }
             // trace this ray in the scene recursively to produce a color for the pixel
-            Color color = traceRayRecursive(ray, scene, 1);
+            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, 1, 1);
             // Keep track of color
             colors[i][j] = color;
         }
