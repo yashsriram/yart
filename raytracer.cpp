@@ -185,7 +185,8 @@ Color phongColorForTriangle(const Ray &ray, const Scene &scene, const Triangle &
     return phongColor;
 }
 
-Color traceRayRecursive(const Ray &ray, const Scene &scene, float grace, int depth, float prevRI) {
+Color traceRayRecursive(const Ray &ray, const Scene &scene, const float grace, const float cameraRI, int depth,
+                        float prevRI) {
     pair<int, float> minTIndex_minT = traceRay(ray, scene, grace);
     int objIndex = minTIndex_minT.first;
     float paramT = minTIndex_minT.second;
@@ -202,6 +203,7 @@ Color traceRayRecursive(const Ray &ray, const Scene &scene, float grace, int dep
     Vector3D poi = ray.getPoint(paramT);
     // ray intersects an object and can still recurse
     if (depth > 0) {
+        Vector3D I = (ray.origin - poi).unit();
         float nextRI = 0;
         float opacity = -1;
         Vector3D N;
@@ -216,34 +218,32 @@ Color traceRayRecursive(const Ray &ray, const Scene &scene, float grace, int dep
             opacity = triangle.materialColor.opacity;
             N = triangle.surfaceNormal.unit();
         }
-        float F0 = pow((nextRI - prevRI) / (nextRI + prevRI), 2);
-        Vector3D I = (ray.origin - poi).unit();
-        float cosThetaI = N.dot(I);
-        // Reflection
-        if (cosThetaI >= 0) {
-            float Fr = F0 + (1 - F0) * pow((1 - cosThetaI), 5);
-            Vector3D R = (N * 2 * cosThetaI - I).unit();
-            Ray reflectedRay(poi, R);
-            reflectedColor = traceRayRecursive(reflectedRay, scene, grace, depth - 1, nextRI);
-            reflectedColor = reflectedColor * Fr;
-        }
-        // Refraction
-        if (cosThetaI < 0) {
-            // Correcting normal for refraction
+        // Correcting normal
+        if (N.dot(I) < 0) {
+            // Case refers to ray exiting object
             N = N * -1;
+            nextRI = cameraRI;
         }
-        cosThetaI = N.dot(I);
-        float underSqrtTerm = 1 - (pow((prevRI / nextRI), 2) * (1 - pow(cosThetaI, 2)));
+        const float cosThetaI = N.dot(I);
+        const float F0 = pow((nextRI - prevRI) / (nextRI + prevRI), 2);
+        // Reflection
+        const float Fr = F0 + (1 - F0) * pow((1 - cosThetaI), 5);
+        const Vector3D R = (N * 2 * cosThetaI - I).unit();
+        const Ray reflectedRay(poi, R);
+        // the nextRI = prevRI as ray doesn't leave medium
+        reflectedColor = traceRayRecursive(reflectedRay, scene, grace, cameraRI, depth - 1, prevRI);
+        reflectedColor = reflectedColor * Fr;
+        // Refraction
+        const float underSqrtTerm = 1 - (pow((prevRI / nextRI), 2) * (1 - pow(cosThetaI, 2)));
         if (underSqrtTerm >= 0) {
             // normal refraction
-            float Fr = F0 + (1 - F0) * pow((1 - cosThetaI), 5);
             Vector3D T = (N * -sqrt(underSqrtTerm) + (N * cosThetaI - I) * (prevRI / nextRI)).unit();
             Ray transmittedRay(poi, T);
-            transmittedColor = traceRayRecursive(transmittedRay, scene, grace, depth - 1, nextRI);
+            transmittedColor = traceRayRecursive(transmittedRay, scene, grace, cameraRI, depth - 1, nextRI);
             transmittedColor = transmittedColor * (1 - Fr) * (1 - opacity);
         } else {
             // total internal reflection
-            // todo
+
         }
     }
 
@@ -315,7 +315,7 @@ int main(int argc, char *argv[]) {
                 ray = Ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             }
             // trace this ray in the scene recursively to produce a color for the pixel
-            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, 8, 1);
+            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, 1, 8, 1);
             // Keep track of color
             colors[i][j] = color;
         }
