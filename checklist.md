@@ -19,4 +19,6 @@ Features
     - [x] texture mapping + smooth shading on triangles
     - [x] parallel projection
     - [x] texture mapping on spheres
-    - [ ] example ppms
+    - [x] example ppms
+
+Sometimes your rays go through triangles without detecting the intersection. Your texture parser doesnt always work, there might be newlines or whitespace at the end of a line. Your shadows aren't correct sometimes. I see you did the parallel projection, but it pulls the camera extremely far back

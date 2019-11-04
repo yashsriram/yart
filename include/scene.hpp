@@ -293,6 +293,8 @@ private:
     bool parseMtlColor(istringstream &iss, MaterialColor &color) {
         float dr, dg, db, sr, sg, sb, ka, kd, ks;
         int n;
+        float opacity;
+        float refractiveIndex;
         // Od validation
         if (!(iss >> dr) || !(iss >> dg) || !(iss >> db)) {
             cerr << "Material color Od incomplete" << endl;
@@ -329,8 +331,26 @@ private:
             cerr << "Material color n is negative" << endl;
             return false;
         }
+        // opacity validation
+        if (!(iss >> opacity)) {
+            cerr << "Material color opacity incomplete" << endl;
+            return false;
+        }
+        if (opacity < 0 || opacity > 1) {
+            cerr << "Material color opacity is out of bounds" << endl;
+            return false;
+        }
+        // refractiveIndex validation
+        if (!(iss >> refractiveIndex)) {
+            cerr << "Material color refractiveIndex incomplete" << endl;
+            return false;
+        }
+        if (refractiveIndex < 1) {
+            cerr << "Material color refractiveIndex < 1" << endl;
+            return false;
+        }
         // update state variable material color
-        color = MaterialColor(Color(dr, dg, db), Color(sr, sg, sb), ka, kd, ks, n);
+        color = MaterialColor(Color(dr, dg, db), Color(sr, sg, sb), ka, kd, ks, n, opacity, refractiveIndex);
         return true;
     }
 

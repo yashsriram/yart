@@ -46,14 +46,19 @@ public:
     Color specular;
     float ka, kd, ks;
     int n;
+    float opacity;
+    float refractiveIndex;
 
     // this is to easily print a given object to std for debugging
     friend std::ostream &operator<<(std::ostream &, const MaterialColor &);
 
-    MaterialColor() : diffusion(0, 0, 0), specular(0, 0, 0), ka(0), kd(0), ks(0), n(0) {}
+    MaterialColor() : diffusion(0, 0, 0), specular(0, 0, 0), ka(0), kd(0), ks(0), n(0), opacity(0),
+                      refractiveIndex(0) {}
 
-    MaterialColor(Color diffusion, Color specular, float ka, float kd, float ks, int n)
-            : diffusion(diffusion), specular(specular), ka(ka), kd(kd), ks(ks), n(n) {}
+    MaterialColor(Color diffusion, Color specular, float ka, float kd, float ks, int n, float opacity,
+                  float refractiveIndex)
+            : diffusion(diffusion), specular(specular), ka(ka), kd(kd), ks(ks), n(n), opacity(opacity),
+              refractiveIndex(refractiveIndex) {}
 
 };
 
