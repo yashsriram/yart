@@ -74,8 +74,8 @@ pair<int, float> traceRay(const Ray &ray, const Scene &scene, float grace = 0) {
 // Given point of intersection, unit direction to light source, light and scene
 // Calculates if there is a shadow cast on point of intersection by the light source
 // By casting a shadow ray from poi in unit direction to light source
-int isUnderShadow(const Vector3D &poi, const Vector3D &Li, const Light &light, const Scene &scene) {
-    int S = 1;
+float shadowFactor(const Vector3D &poi, const Vector3D &Li, const Light &light, const Scene &scene) {
+    float S = 1;
     Ray shadowRay(poi, Li);
     pair<int, float> shadow_minTIndex_minT = traceRay(shadowRay, scene, SHADOW_GRACE);
     // Shadow ray hit something
@@ -90,6 +90,57 @@ int isUnderShadow(const Vector3D &poi, const Vector3D &Li, const Light &light, c
             Vector3D lightVector = light.vector - poi;
             if (hitVector.absSquare() < lightVector.absSquare()) {
                 S = 0;
+            }
+        }
+    }
+    return S;
+}
+
+// Given point of intersection, unit direction to light source, light and scene
+// Foreach point of intersection by ray from poi to light source decreases shadow factor
+float shadowFactorSubtractive(const Vector3D &poi, const Vector3D &Li, const Light &light, const Scene &scene) {
+    float S = 1;
+    Ray shadowRay(poi, Li);
+    if (light.type == 0) {
+        // Directional light => Shadow exists
+        // Inspect intersection with all spheres
+        for (const auto &sphere : scene.spheres) {
+            float t = smallestNonNegativeT(shadowRay, sphere, SHADOW_GRACE);
+            if (t > -1) {
+                S = S * (1 - sphere.materialColor.opacity);
+            }
+        }
+        // Inspect intersection with all triangles
+        for (const auto &triangle : scene.triangles) {
+            float t = smallestNonNegativeT(shadowRay, triangle, SHADOW_GRACE);
+            if (t > -1) {
+                S = S * (1 - triangle.materialColor.opacity);
+            }
+        }
+    } else {
+        // Positional light => Check for distance of hit
+        // Inspect intersection with all spheres
+        for (const auto &sphere : scene.spheres) {
+            float t = smallestNonNegativeT(shadowRay, sphere, SHADOW_GRACE);
+            if (t > -1) {
+                Vector3D hitPoint = shadowRay.getPoint(t);
+                Vector3D hitVector = hitPoint - poi;
+                Vector3D lightVector = light.vector - poi;
+                if (hitVector.absSquare() < lightVector.absSquare()) {
+                    S = S * (1 - sphere.materialColor.opacity);
+                }
+            }
+        }
+        // Inspect intersection with all triangles
+        for (const auto &triangle : scene.triangles) {
+            float t = smallestNonNegativeT(shadowRay, triangle, SHADOW_GRACE);
+            if (t > -1) {
+                Vector3D hitPoint = shadowRay.getPoint(t);
+                Vector3D hitVector = hitPoint - poi;
+                Vector3D lightVector = light.vector - poi;
+                if (hitVector.absSquare() < lightVector.absSquare()) {
+                    S = S * (1 - triangle.materialColor.opacity);
+                }
             }
         }
     }
@@ -122,7 +173,7 @@ Color phongColorForSphere(const Ray &ray, const Scene &scene, const Sphere &sphe
         float S = 0;
         for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
             Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
-            S += (float) isUnderShadow(poi, Lj, light, scene);
+            S += shadowFactorSubtractive(poi, Lj, light, scene);
         }
         S = S / NUM_SHADOW_RAYS_PER_POI;
 
@@ -171,7 +222,7 @@ Color phongColorForTriangle(const Ray &ray, const Scene &scene, const Triangle &
         float S = 0;
         for (int j = 0; j < NUM_SHADOW_RAYS_PER_POI; j++) {
             Vector3D Lj = light.poiToLightUnitVector(poi, SOFT_SHADOW_JITTER);
-            S += (float) isUnderShadow(poi, Lj, light, scene);
+            S += shadowFactorSubtractive(poi, Lj, light, scene);
         }
         S = S / NUM_SHADOW_RAYS_PER_POI;
 
@@ -320,7 +371,8 @@ int main(int argc, char *argv[]) {
                 ray = Ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             }
             // trace this ray in the scene recursively to produce a color for the pixel
-            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, CAMERA_REFRACTIVE_INDEX, RECURSIVE_DEPTH, CAMERA_REFRACTIVE_INDEX);
+            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, CAMERA_REFRACTIVE_INDEX, RECURSIVE_DEPTH,
+                                            CAMERA_REFRACTIVE_INDEX);
             // Keep track of color
             colors[i][j] = color;
         }

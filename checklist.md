@@ -25,6 +25,6 @@ Features
     - [x] texture mapping + smooth shading on triangles
     - [x] parallel projection
     - [x] texture mapping on spheres
+    - [x] shadow subtractive model
     - [ ] example ppms
-    - [ ] shadow subtractive model
 
