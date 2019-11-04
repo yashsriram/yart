@@ -96,12 +96,11 @@ int isUnderShadow(const Vector3D &poi, const Vector3D &Li, const Light &light, c
 
 // Given ray, scene and intersecting object and point
 // returns appropriate color to fill in the corresponding pixel of output image
-Color phongColorForSphere(const Ray &ray, const Scene &scene, const Sphere &sphere, float t) {
+Color phongColorForSphere(const Ray &ray, const Scene &scene, const Sphere &sphere, const Vector3D& poi) {
     // Blinn-phong illumination model
     // I = Od * ka + Sum over lights [Si * Ilight (Od * kd * (N.L) + Os * ks * (N.H)^n)]
     // Intersection with a sphere
     MaterialColor color = sphere.materialColor;
-    Vector3D poi = ray.getPoint(t);
     Vector3D N = (poi - sphere.center).unit();
     Vector3D V = (scene.eye - poi).unit();
     Color diffusion;
@@ -139,12 +138,11 @@ Color phongColorForSphere(const Ray &ray, const Scene &scene, const Sphere &sphe
 
 // Given ray, scene and intersecting object and point
 // returns appropriate color to fill in the corresponding pixel of output image
-Color phongColorForTriangle(const Ray &ray, const Scene &scene, const Triangle &triangle, float t) {
+Color phongColorForTriangle(const Ray &ray, const Scene &scene, const Triangle &triangle, const Vector3D& poi) {
     // Blinn-phong illumination model
     // I = Od * ka + Sum over lights [Si * Ilight (Od * kd * (N.L) + Os * ks * (N.H)^n)]
     // Intersection with an Triangle
     MaterialColor color = triangle.materialColor;
-    Vector3D poi = ray.getPoint(t);
     Vector3D V = (scene.eye - poi).unit();
     Vector3D N;
     Color diffusion;
@@ -187,30 +185,55 @@ Color phongColorForTriangle(const Ray &ray, const Scene &scene, const Triangle &
     return phongColor;
 }
 
-Color traceRayRecursive(const Ray &ray, const Scene &scene, int depth = 0, float prevRefractiveIndex = 1) {
-    pair<int, float> minTIndex_minT = traceRay(ray, scene);
+Color traceRayRecursive(const Ray &ray, const Scene &scene, int depth = 0, float prevRI = 1) {
+    pair<int, float> minTIndex_minT = traceRay(ray, scene, 1e-4);
     int objIndex = minTIndex_minT.first;
     float paramT = minTIndex_minT.second;
+    int noSpheres = scene.spheres.size();
+
+    // no intersection with anything
     if (objIndex < 0) {
-        // no intersection with anything
         // return variant of bg color
         return scene.bgColor;
     }
-    Color R;
-    if (objIndex >= 0 && depth > 0) {
-        // ray intersects an object and can still recurse
+
+    Color reflectiveColor;
+    Vector3D poi = ray.getPoint(paramT);
+    // ray intersects an object and can still recurse
+    if (depth > 0) {
+        float nextRI = 0;
+        Vector3D N;
+        if (objIndex < noSpheres) {
+            Sphere sphere = scene.spheres[objIndex];
+            nextRI = sphere.materialColor.refractiveIndex;
+            N = (poi - sphere.center).unit();
+        } else {
+            Triangle triangle = scene.triangles[objIndex - noSpheres];
+            nextRI = triangle.materialColor.refractiveIndex;
+            N = triangle.surfaceNormal.unit();
+        }
+        float F0 = pow((nextRI - prevRI) / (nextRI + prevRI), 2);
+        Vector3D I = (ray.origin - poi).unit();
+        float cosTheta = N.dot(I);
+        if (cosTheta >= 0) {
+            float Fr = F0 + (1 - F0) * pow((1 - cosTheta), 5);
+            Vector3D R = (N * 2 * cosTheta - I).unit();
+            Ray reflectedRay(poi, R);
+            reflectiveColor = traceRayRecursive(reflectedRay, scene, depth - 1, nextRI);
+            reflectiveColor = reflectiveColor * Fr;
+        }
     }
+
     // phongColor = ambient + diffuse + specular + shadows
     Color phongColor;
-    int noSpheres = scene.spheres.size();
     if (objIndex < noSpheres) {
         Sphere sphere = scene.spheres[objIndex];
-        phongColor = phongColorForSphere(ray, scene, sphere, paramT);
+        phongColor = phongColorForSphere(ray, scene, sphere, poi);
     } else {
         Triangle triangle = scene.triangles[objIndex - noSpheres];
-        phongColor = phongColorForTriangle(ray, scene, triangle, paramT);
+        phongColor = phongColorForTriangle(ray, scene, triangle, poi);
     }
-    return phongColor + R;
+    return phongColor + reflectiveColor;
 }
 
 int main(int argc, char *argv[]) {
@@ -269,7 +292,7 @@ int main(int argc, char *argv[]) {
                 ray = Ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             }
             // trace this ray in the scene recursively to produce a color for the pixel
-            Color color = traceRayRecursive(ray, scene);
+            Color color = traceRayRecursive(ray, scene, 1);
             // Keep track of color
             colors[i][j] = color;
         }
