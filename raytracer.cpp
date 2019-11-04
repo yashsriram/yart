@@ -21,7 +21,7 @@ using namespace std;
 #define SHADOW_GRACE 1e-4
 #define RECURSIVE_RAY_GRACE 1e-4
 #define CAMERA_REFRACTIVE_INDEX 1
-#define RECURSIVE_DEPTH 8
+#define RECURSIVE_DEPTH 6
 #define SOFT_SHADOW_JITTER 0
 #define NUM_SHADOW_RAYS_PER_POI 1
 

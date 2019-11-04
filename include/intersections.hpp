@@ -54,7 +54,7 @@ float smallestNonNegativeT(const Ray &ray, const Triangle &triangle, float grace
     Triangle b(poi, triangle.v1, triangle.v3, triangle.materialColor);
     Triangle c(poi, triangle.v1, triangle.v2, triangle.materialColor);
     // Out of triangle intersection
-    if (a.area + b.area + c.area - triangle.area > 1e-5) { return -1; }
+    if (a.area + b.area + c.area - triangle.area > 1e-3) { return -1; }
     // Intersects inside triangle
     return t;
 }
