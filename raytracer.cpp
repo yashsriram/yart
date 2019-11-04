@@ -20,6 +20,8 @@ using namespace std;
 
 #define SHADOW_GRACE 1e-4
 #define RECURSIVE_RAY_GRACE 1e-4
+#define CAMERA_REFRACTIVE_INDEX 1
+#define RECURSIVE_DEPTH 8
 #define SOFT_SHADOW_JITTER 0
 #define NUM_SHADOW_RAYS_PER_POI 1
 
@@ -200,6 +202,7 @@ Color traceRayRecursive(const Ray &ray, const Scene &scene, const float grace, c
 
     Color reflectedColor;
     Color transmittedColor;
+    Color tirColor;
     Vector3D poi = ray.getPoint(paramT);
     // ray intersects an object and can still recurse
     if (depth > 0) {
@@ -237,13 +240,15 @@ Color traceRayRecursive(const Ray &ray, const Scene &scene, const float grace, c
         const float underSqrtTerm = 1 - (pow((prevRI / nextRI), 2) * (1 - pow(cosThetaI, 2)));
         if (underSqrtTerm >= 0) {
             // normal refraction
-            Vector3D T = (N * -sqrt(underSqrtTerm) + (N * cosThetaI - I) * (prevRI / nextRI)).unit();
-            Ray transmittedRay(poi, T);
+            const Vector3D T = (N * -sqrt(underSqrtTerm) + (N * cosThetaI - I) * (prevRI / nextRI)).unit();
+            const Ray transmittedRay(poi, T);
             transmittedColor = traceRayRecursive(transmittedRay, scene, grace, cameraRI, depth - 1, nextRI);
             transmittedColor = transmittedColor * (1 - Fr) * (1 - opacity);
         } else {
             // total internal reflection
-
+            // this can be optimized as this tracing is same as the reflected ray tracing in the same recursion depth
+            tirColor = traceRayRecursive(reflectedRay, scene, grace, cameraRI, depth - 1, prevRI);
+            tirColor = tirColor * (1 - Fr);
         }
     }
 
@@ -256,7 +261,7 @@ Color traceRayRecursive(const Ray &ray, const Scene &scene, const float grace, c
         Triangle triangle = scene.triangles[objIndex - noSpheres];
         phongColor = phongColorForTriangle(ray, scene, triangle, poi);
     }
-    return phongColor + reflectedColor + transmittedColor;
+    return phongColor + reflectedColor + transmittedColor + tirColor;
 }
 
 int main(int argc, char *argv[]) {
@@ -315,7 +320,7 @@ int main(int argc, char *argv[]) {
                 ray = Ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             }
             // trace this ray in the scene recursively to produce a color for the pixel
-            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, 1, 8, 1);
+            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, CAMERA_REFRACTIVE_INDEX, RECURSIVE_DEPTH, CAMERA_REFRACTIVE_INDEX);
             // Keep track of color
             colors[i][j] = color;
         }
