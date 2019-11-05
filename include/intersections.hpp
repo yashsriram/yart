@@ -1,13 +1,12 @@
 // Returns smallest positive t (ray parameter) if intersection does occurs in-front of the origin else returns -1
 float smallestNonNegativeT(const Ray &ray, const Sphere &sphere, float grace) {
     // A = xd^2 + yd^2 + zd^2 = 1
-    float A = 1;
+    float A = ray.direction.absSquare();
     // B = xdxe + ... - xdxc - ...
-    float B = 2 * (ray.direction.dot(ray.origin) - ray.direction.dot(sphere.center));
+    float B = 2 * (ray.direction.dot(ray.origin - sphere.center));
     // C = xe^2 + ... + xc^2 + ... - 2 * (xe*xc + ...) - rad^2
-    float C = ray.origin.absSquare() + sphere.center.absSquare() - 2 * ray.origin.dot(sphere.center) -
-              sphere.radius * sphere.radius;
-    float discriminant = B * B - 4 * A * C;
+    float C = (ray.origin - sphere.center).absSquare() - sphere.radius * sphere.radius;
+    float discriminant = (B * B) - (4 * A * C);
 
     // Ray does not intersect sphere
     if (discriminant < 0) {

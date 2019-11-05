@@ -378,7 +378,7 @@ int main(int argc, char *argv[]) {
 
             // Show progress
             if (i == 0) {
-                printf("Rendering: %f%% complete\r", ((float) j / scene.imHeight));
+                printf("Rendering: %f%% complete\r", ((float) (j + 1) * 100 / scene.imHeight));
             }
         }
     }

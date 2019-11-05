@@ -16,8 +16,8 @@ Bug fixes
     - [x] Sometimes your rays go through triangles without detecting the intersection.
     - [x] Your texture parser doesnt always work, there might be newlines or whitespace at the end of a line.
     - [x] texture paths
+    - [x] Your shadows aren't correct sometimes.
     - [ ] 1c testcases
-    - [ ] Your shadows aren't correct sometimes.
     - [ ] 1d testcases
     - [ ] I see you did the parallel projection, but it pulls the camera extremely far back
 
