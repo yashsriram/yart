@@ -13,7 +13,7 @@ public:
 
     Ray(Vector3D eye, Vector3D direction) : origin(eye), direction(direction) {}
 
-    Vector3D getPoint(float t) const {
+    Vector3D pointAt(float t) const {
         return Vector3D(origin + direction * t);
     }
 

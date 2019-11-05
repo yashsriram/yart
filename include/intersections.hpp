@@ -1,3 +1,29 @@
+// Returns index of smallest non-negative number from vector
+// If all are negative then returns -1
+int indexOfSmallestNonNegativeElement(const vector<float> &vector) {
+    float minT = -1;
+    int ans = -1;
+    for (int i = 0; i < vector.size(); ++i) {
+        float t = vector[i];
+        // t < 0 => prune
+        if (t < 0) {
+            continue;
+        }
+
+        // t >= 0
+        if (ans == -1) {
+            ans = i;
+            minT = t;
+        } else {
+            if (t < minT) {
+                ans = i;
+                minT = t;
+            }
+        }
+    }
+    return ans;
+}
+
 // Returns smallest positive t (ray parameter) if intersection does occurs in-front of the origin else returns -1
 float smallestNonNegativeT(const Ray &ray, const Sphere &sphere, float grace) {
     // A = xd^2 + yd^2 + zd^2 = 1
@@ -48,7 +74,7 @@ float smallestNonNegativeT(const Ray &ray, const Triangle &triangle, float grace
     // Behind origin or self intersection intersection
     float t = numerator / denominator;
     if (t < grace) { return -1; }
-    Vector3D poi = ray.getPoint(t);
+    Vector3D poi = ray.pointAt(t);
     Triangle a(poi, triangle.v2, triangle.v3, triangle.materialColor);
     Triangle b(poi, triangle.v1, triangle.v3, triangle.materialColor);
     Triangle c(poi, triangle.v1, triangle.v2, triangle.materialColor);

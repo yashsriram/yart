@@ -17,7 +17,7 @@ Bug fixes
     - [x] Your texture parser doesnt always work, there might be newlines or whitespace at the end of a line.
     - [x] texture paths
     - [x] Your shadows aren't correct sometimes.
-    - [ ] 1c testcases
+    - [x] 1c testcases
     - [ ] 1d testcases
     - [ ] I see you did the parallel projection, but it pulls the camera extremely far back
 

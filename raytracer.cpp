@@ -25,32 +25,6 @@ using namespace std;
 #define SOFT_SHADOW_JITTER 0
 #define NUM_SHADOW_RAYS_PER_POI 1
 
-// Returns index of smallest non-negative number from vector
-// If all are negative then returns -1
-int indexOfSmallestNonNegative(const vector<float> &vector) {
-    float minT = -1;
-    int ans = -1;
-    for (int i = 0; i < vector.size(); ++i) {
-        float t = vector[i];
-        // t < 0 => prune
-        if (t < 0) {
-            continue;
-        }
-
-        // t >= 0
-        if (ans == -1) {
-            ans = i;
-            minT = t;
-        } else {
-            if (t < minT) {
-                ans = i;
-                minT = t;
-            }
-        }
-    }
-    return ans;
-}
-
 // Returns global index of object the ray first hits (in front of the origin) and corresponding T parameter of the hit
 // If ray does not hit any object both index and T parameter are returned -1
 pair<int, float> traceRay(const Ray &ray, const Scene &scene, float grace = 0) {
@@ -66,7 +40,7 @@ pair<int, float> traceRay(const Ray &ray, const Scene &scene, float grace = 0) {
         Ts.push_back(t);
     }
     // Find smallest non-negative t
-    int minTIndex = indexOfSmallestNonNegative(Ts);
+    int minTIndex = indexOfSmallestNonNegativeElement(Ts);
 
     return {minTIndex, minTIndex < 0 ? -1 : Ts[minTIndex]};
 }
@@ -85,7 +59,7 @@ float shadowFactor(const Vector3D &poi, const Vector3D &Li, const Light &light, 
             S = 0;
         } else {
             // Positional light => Check for distance of hit
-            Vector3D hitPoint = shadowRay.getPoint(shadow_minTIndex_minT.second);
+            Vector3D hitPoint = shadowRay.pointAt(shadow_minTIndex_minT.second);
             Vector3D hitVector = hitPoint - poi;
             Vector3D lightVector = light.vector - poi;
             if (hitVector.absSquare() < lightVector.absSquare()) {
@@ -123,7 +97,7 @@ float shadowFactorSubtractive(const Vector3D &poi, const Vector3D &Li, const Lig
         for (const auto &sphere : scene.spheres) {
             float t = smallestNonNegativeT(shadowRay, sphere, SHADOW_GRACE);
             if (t > -1) {
-                Vector3D hitPoint = shadowRay.getPoint(t);
+                Vector3D hitPoint = shadowRay.pointAt(t);
                 Vector3D hitVector = hitPoint - poi;
                 Vector3D lightVector = light.vector - poi;
                 if (hitVector.absSquare() < lightVector.absSquare()) {
@@ -135,7 +109,7 @@ float shadowFactorSubtractive(const Vector3D &poi, const Vector3D &Li, const Lig
         for (const auto &triangle : scene.triangles) {
             float t = smallestNonNegativeT(shadowRay, triangle, SHADOW_GRACE);
             if (t > -1) {
-                Vector3D hitPoint = shadowRay.getPoint(t);
+                Vector3D hitPoint = shadowRay.pointAt(t);
                 Vector3D hitVector = hitPoint - poi;
                 Vector3D lightVector = light.vector - poi;
                 if (hitVector.absSquare() < lightVector.absSquare()) {
@@ -254,7 +228,7 @@ Color traceRayRecursive(const Ray &ray, const Scene &scene, const float grace, c
     Color reflectedColor;
     Color transmittedColor;
     Color tirColor;
-    Vector3D poi = ray.getPoint(paramT);
+    Vector3D poi = ray.pointAt(paramT);
     // ray intersects an object and can still recurse
     if (depth > 0) {
         Vector3D I = (ray.origin - poi).unit();
