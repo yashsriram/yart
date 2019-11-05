@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stack>
 #include <fstream>
 #include <algorithm>
 #include <cmath>
@@ -19,9 +20,10 @@ using namespace std;
 #endif
 
 #define SHADOW_GRACE 1e-4
-#define RECURSIVE_RAY_GRACE 1e-4
-#define CAMERA_REFRACTIVE_INDEX 1
-#define RECURSIVE_DEPTH 0
+#define RECURSIVE_RAY_GRACE 1e-3
+#define CAMERA_MEDIUM_REFRACTIVE_INDEX 1
+#define CAMERA_MEDIUM_OPACITY 0
+#define RECURSIVE_DEPTH 6
 #define SOFT_SHADOW_JITTER 0
 #define NUM_SHADOW_RAYS_PER_POI 1
 
@@ -212,8 +214,8 @@ Color phongColorForTriangle(const Ray &ray, const Scene &scene, const Triangle &
     return phongColor;
 }
 
-Color traceRayRecursive(const Ray &ray, const Scene &scene, const float grace, const float cameraRI, int depth,
-                        float prevRI) {
+Color traceRayRecursive(const Ray &ray, const Scene &scene, const float grace,
+                        const int depth, stack<float> refractiveIndices, stack<float> opacities) {
     pair<int, float> minTIndex_minT = traceRay(ray, scene, grace);
     int objIndex = minTIndex_minT.first;
     float paramT = minTIndex_minT.second;
@@ -231,48 +233,70 @@ Color traceRayRecursive(const Ray &ray, const Scene &scene, const float grace, c
     Vector3D poi = ray.pointAt(paramT);
     // ray intersects an object and can still recurse
     if (depth > 0) {
-        Vector3D I = (ray.origin - poi).unit();
+        const Vector3D I = (ray.origin - poi).unit();
+        const stack<float> refractiveIndicesCopy = refractiveIndices;
+        const float prevRI = refractiveIndicesCopy.top();
+        const stack<float> opacitiesCopy = opacities;
+
+        // next object RI, opacity and normal at POI
         float nextRI = 0;
-        float opacity = -1;
+        float nextOpacity = -1;
         Vector3D N;
         if (objIndex < noSpheres) {
             Sphere sphere = scene.spheres[objIndex];
             nextRI = sphere.materialColor.refractiveIndex;
-            opacity = sphere.materialColor.opacity;
+            nextOpacity = sphere.materialColor.opacity;
             N = (poi - sphere.center).unit();
         } else {
             Triangle triangle = scene.triangles[objIndex - noSpheres];
             nextRI = triangle.materialColor.refractiveIndex;
-            opacity = triangle.materialColor.opacity;
+            nextOpacity = triangle.materialColor.opacity;
             N = triangle.surfaceNormal.unit();
         }
-        // Correcting normal
+
+        // Entering or exiting object
         if (N.dot(I) < 0) {
             // Case refers to ray exiting object
+            // Correcting normal
             N = N * -1;
-            nextRI = cameraRI;
+            // Removing top of refractive indices and opacities stack
+            if (refractiveIndices.size() > 1) {
+                refractiveIndices.pop();
+            }
+            if (opacities.size() > 1) {
+                opacities.pop();
+            }
+            // Correcting nextRI and nextOpacity
+            nextRI = refractiveIndices.top();
+            nextOpacity = opacities.top();
+        } else {
+            refractiveIndices.push(nextRI);
+            opacities.push(nextOpacity);
         }
+
         const float cosThetaI = N.dot(I);
         const float F0 = pow((nextRI - prevRI) / (nextRI + prevRI), 2);
+
         // Reflection
         const float Fr = F0 + (1 - F0) * pow((1 - cosThetaI), 5);
         const Vector3D R = (N * 2 * cosThetaI - I).unit();
         const Ray reflectedRay(poi, R);
         // the nextRI = prevRI as ray doesn't leave medium
-        reflectedColor = traceRayRecursive(reflectedRay, scene, grace, cameraRI, depth - 1, prevRI);
+        reflectedColor = traceRayRecursive(reflectedRay, scene, grace, depth - 1, refractiveIndicesCopy, opacitiesCopy);
         reflectedColor = reflectedColor * Fr;
+
         // Refraction
         const float underSqrtTerm = 1 - (pow((prevRI / nextRI), 2) * (1 - pow(cosThetaI, 2)));
         if (underSqrtTerm >= 0) {
             // normal refraction
             const Vector3D T = (N * -sqrt(underSqrtTerm) + (N * cosThetaI - I) * (prevRI / nextRI)).unit();
             const Ray transmittedRay(poi, T);
-            transmittedColor = traceRayRecursive(transmittedRay, scene, grace, cameraRI, depth - 1, nextRI);
-            transmittedColor = transmittedColor * (1 - Fr) * (1 - opacity);
+            transmittedColor = traceRayRecursive(transmittedRay, scene, grace, depth - 1, refractiveIndices, opacities);
+            transmittedColor = transmittedColor * (1 - Fr) * (1 - nextOpacity);
         } else {
             // total internal reflection
             // this can be optimized as this tracing is same as the reflected ray tracing in the same recursion depth
-            tirColor = traceRayRecursive(reflectedRay, scene, grace, cameraRI, depth - 1, prevRI);
+            tirColor = traceRayRecursive(reflectedRay, scene, grace, depth - 1, refractiveIndicesCopy, opacitiesCopy);
             tirColor = tirColor * (1 - Fr);
         }
     }
@@ -345,14 +369,18 @@ int main(int argc, char *argv[]) {
                 ray = Ray(scene.eye, (pixelCoordinate - scene.eye).unit());
             }
             // trace this ray in the scene recursively to produce a color for the pixel
-            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, CAMERA_REFRACTIVE_INDEX, RECURSIVE_DEPTH,
-                                            CAMERA_REFRACTIVE_INDEX);
+            stack<float> refractiveIndices;
+            refractiveIndices.push(CAMERA_MEDIUM_REFRACTIVE_INDEX);
+            stack<float> opacities;
+            opacities.push(CAMERA_MEDIUM_OPACITY);
+            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, RECURSIVE_DEPTH, refractiveIndices,
+                                            opacities);
             // Keep track of color
             colors[i][j] = color;
 
             // Show progress
             if (i == 0) {
-                printf("Rendering: %f%% complete\r", ((float) (j + 1) * 100 / scene.imHeight));
+                printf("Rendering: %d%% complete\r", (int) ((float) (j + 1) * 100 / scene.imHeight));
             }
         }
     }

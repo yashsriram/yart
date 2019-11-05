@@ -18,7 +18,7 @@ Bug fixes
     - [x] texture paths
     - [x] Your shadows aren't correct sometimes.
     - [x] 1c testcases
-    - [ ] 1d testcases
+    - [x] 1d testcases
     - [ ] I see you did the parallel projection, but it pulls the camera extremely far back
 
 Features
@@ -27,7 +27,15 @@ Features
     - [x] parallel projection
     - [x] texture mapping on spheres
     - [x] shadow subtractive model
-    - [ ] example ppms
-    - [ ] set macros properly before submission
+    - [x] hollow sphere
     - [ ] depth of field effect
+    - [ ] example ppms
+        - [x] reflection
+        - [x] refraction
+        - [x] total internal reflection
+        - [x] shadows
+        - [ ] depth of field
+    - [ ] readme
+        - [ ] explain examples
+    - [ ] set macros properly before submission
 
