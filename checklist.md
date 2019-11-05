@@ -6,19 +6,20 @@ Extras
     HW1b
     - [x] soft shadow
     HW1c
-    - [x] parallel projection
+    - [x] parallel projection (not done properly)
 
 Bug fixes
     - [x] Invalid number of args fix
     - [x] Output file name fix
     - [x] Accept empty lines
     - [x] Ignore unknown keywords
-    - [ ] Sometimes your rays go through triangles without detecting the intersection.
-    - [ ] Your texture parser doesnt always work, there might be newlines or whitespace at the end of a line.
-    - [ ] texture paths
+    - [x] Sometimes your rays go through triangles without detecting the intersection.
+    - [x] Your texture parser doesnt always work, there might be newlines or whitespace at the end of a line.
+    - [x] texture paths
+    - [ ] 1c testcases
     - [ ] Your shadows aren't correct sometimes.
+    - [ ] 1d testcases
     - [ ] I see you did the parallel projection, but it pulls the camera extremely far back
-    - [ ] 1c testcases, 1d testcases
 
 Features
     - [x] texture mapping on triangles
@@ -27,4 +28,6 @@ Features
     - [x] texture mapping on spheres
     - [x] shadow subtractive model
     - [ ] example ppms
+    - [ ] set macros properly before submission
+    - [ ] depth of field effect
 

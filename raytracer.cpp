@@ -21,7 +21,7 @@ using namespace std;
 #define SHADOW_GRACE 1e-4
 #define RECURSIVE_RAY_GRACE 1e-4
 #define CAMERA_REFRACTIVE_INDEX 1
-#define RECURSIVE_DEPTH 6
+#define RECURSIVE_DEPTH 0
 #define SOFT_SHADOW_JITTER 0
 #define NUM_SHADOW_RAYS_PER_POI 1
 
@@ -375,6 +375,11 @@ int main(int argc, char *argv[]) {
                                             CAMERA_REFRACTIVE_INDEX);
             // Keep track of color
             colors[i][j] = color;
+
+            // Show progress
+            if (i == 0) {
+                printf("Rendering: %f%% complete\r", ((float) j / scene.imHeight));
+            }
         }
     }
 

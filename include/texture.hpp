@@ -52,6 +52,7 @@ public:
                  << "\" could not be opened. Maybe it doesn't exist or has insufficient permissions." << endl;
             return false;
         }
+        cout << "Parsing texture file: " << filename << endl;
         string line;
         getline(texturePPM, line);
         istringstream heading(line);
@@ -73,7 +74,12 @@ public:
             vector<string> lineSplit = split(line, " ");
             for (auto &token: lineSplit) {
                 if (token.empty()) { continue; }
-                numbers.push_back(stof(token) / pixelMax);
+                try {
+                    float floatToken = stof(token);
+                    numbers.push_back(floatToken / pixelMax);
+                } catch (exception &e) {
+                    continue;
+                }
             }
         }
         // Insufficient color information
