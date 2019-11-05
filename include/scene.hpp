@@ -26,6 +26,7 @@ public:
     int imHeight;
     Color bgColor;
     bool isParallelProjection;
+    float viewingDistance;
 
     // Scene optional
     vector<Sphere> spheres;
@@ -38,7 +39,8 @@ public:
                                     eye(Vector3D()), viewDir(Vector3D()), upDir(Vector3D()),
                                     vFovDeg(0), imWidth(0), imHeight(0),
                                     bgColor(Color()),
-                                    isParallelProjection(false) {}
+                                    isParallelProjection(false),
+                                    viewingDistance(0) {}
 
     // Reads the scene description and validates it
     // If everything is valid returns true else returns false and prints and error message
@@ -123,6 +125,12 @@ public:
                 // Non-critical or optional input
             else if (keyword == "parallel") {
                 isParallelProjection = true;
+            } else if (keyword == "viewdist") {
+                if (!this->parseViewdist(iss)) {
+                    input.close();
+                    return false;
+                }
+                criticalInputCheck[keyword] = 1;
             } else if (keyword == "mtlcolor") {
                 if (!this->parseMtlColor(iss, materialColor)) {
                     input.close();
@@ -616,6 +624,22 @@ private:
         // Setting scene variable
         Light light(Vector3D(x, y, z), (int) w, Color(r, g, b));
         this->lights.emplace_back(light);
+        return true;
+    }
+
+    bool parseViewdist(istringstream &iss) {
+        // Validation
+        float _viewdist;
+        if (!(iss >> _viewdist)) {
+            cerr << "viewdist incomplete" << endl;
+            return false;
+        }
+        if (_viewdist <= 0) {
+            cerr << "viewdist is Invalid" << endl;
+            return false;
+        }
+        // Setting scene variable
+        this->viewingDistance = _viewdist;
         return true;
     }
 

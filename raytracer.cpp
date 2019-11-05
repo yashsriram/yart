@@ -26,6 +26,8 @@ using namespace std;
 #define RECURSIVE_DEPTH 6
 #define SOFT_SHADOW_JITTER 0
 #define NUM_SHADOW_RAYS_PER_POI 1
+#define NUM_DISTRIBUTED_RAYS 5
+#define DISTRIBUTED_RAYS_JITTER 5e-2
 
 // Returns global index of object the ray first hits (in front of the origin) and corresponding T parameter of the hit
 // If ray does not hit any object both index and T parameter are returned -1
@@ -337,12 +339,19 @@ int main(int argc, char *argv[]) {
     Vector3D n = u.cross(v);
 
     float d = scene.imHeight / (2 * tan(scene.vFovDeg * M_PI / 360));
+    float viewingWindowWidth = scene.imWidth;
+    float viewingWindowHeight = scene.imHeight;
+    if (scene.viewingDistance > 0) {
+        viewingWindowWidth = (scene.viewingDistance / d) * scene.imWidth;
+        viewingWindowHeight = (scene.viewingDistance / d) * scene.imHeight;
+        d = scene.viewingDistance;
+    }
 
     Vector3D imageCenter = scene.eye + scene.viewDir.unit() * d;
-    Vector3D ul = imageCenter - u * ((float) scene.imWidth / 2) + v * ((float) scene.imHeight / 2);
-    Vector3D ur = imageCenter + u * ((float) scene.imWidth / 2) + v * ((float) scene.imHeight / 2);
-    Vector3D ll = imageCenter - u * ((float) scene.imWidth / 2) - v * ((float) scene.imHeight / 2);
-    Vector3D lr = imageCenter + u * ((float) scene.imWidth / 2) - v * ((float) scene.imHeight / 2);
+    Vector3D ul = imageCenter - u * (viewingWindowWidth / 2) + v * (viewingWindowHeight / 2);
+    Vector3D ur = imageCenter + u * (viewingWindowWidth / 2) + v * (viewingWindowHeight / 2);
+    Vector3D ll = imageCenter - u * (viewingWindowWidth / 2) - v * (viewingWindowHeight / 2);
+    Vector3D lr = imageCenter + u * (viewingWindowWidth / 2) - v * (viewingWindowHeight / 2);
 
     Vector3D delWidth = (ur - ul) * (1 / ((float) scene.imWidth - 1));
     Vector3D delHeight = (ll - ul) * (1 / ((float) scene.imHeight - 1));
@@ -360,23 +369,55 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < scene.imWidth; i++) {
             // (i, j) pixel coordinate
             Vector3D pixelCoordinate = ul + delWidth * i + delHeight * j;
-            Ray ray;
-            if (scene.isParallelProjection) {
-                // ray from pixel projection on eye plane in direction of normal to image plane
-                ray = Ray(pixelCoordinate - scene.viewDir.unit() * d, scene.viewDir);
-            } else {
-                // ray from eye to that pixel
-                ray = Ray(scene.eye, (pixelCoordinate - scene.eye).unit());
-            }
             // trace this ray in the scene recursively to produce a color for the pixel
             stack<float> refractiveIndices;
             refractiveIndices.push(CAMERA_MEDIUM_REFRACTIVE_INDEX);
             stack<float> opacities;
             opacities.push(CAMERA_MEDIUM_OPACITY);
-            Color color = traceRayRecursive(ray, scene, RECURSIVE_RAY_GRACE, RECURSIVE_DEPTH, refractiveIndices,
-                                            opacities);
-            // Keep track of color
-            colors[i][j] = color;
+
+            if (scene.viewingDistance > 0) {
+                // Control NUM_DISTRIBUTED_RAYS, DISTRIBUTED_RAYS_JITTER to change distributed ray tracing effects
+                // Set NUM_DISTRIBUTED_RAYS = 1, DISTRIBUTED_RAYS_JITTER = 0 for disabling distributed ray tracing
+                for (int distributed_i = 0; distributed_i < NUM_DISTRIBUTED_RAYS; distributed_i++) {
+                    // Create ray and add jitter to ray origin
+                    Ray ray;
+                    if (scene.isParallelProjection) {
+                        // ray from pixel projection on eye plane in direction of normal to image plane
+                        ray = Ray(pixelCoordinate - scene.viewDir.unit() * d +
+                                  Vector3D(getRand(), getRand(), getRand()).unit() * DISTRIBUTED_RAYS_JITTER,
+                                  scene.viewDir);
+                    } else {
+                        // ray from eye to that pixel
+                        Vector3D origin =
+                                scene.eye + Vector3D(getRand(), getRand(), getRand()).unit() * DISTRIBUTED_RAYS_JITTER;
+                        ray = Ray(origin, (pixelCoordinate - origin).unit());
+                    }
+                    Color color = traceRayRecursive(ray, scene,
+                                                    RECURSIVE_RAY_GRACE, RECURSIVE_DEPTH,
+                                                    refractiveIndices,
+                                                    opacities);
+                    // Keep track of color
+                    colors[i][j] = colors[i][j] + color;
+                }
+                colors[i][j] = colors[i][j] * (1.0 / NUM_DISTRIBUTED_RAYS);
+            } else {
+                // Create ray and add jitter to ray origin
+                Ray ray;
+                if (scene.isParallelProjection) {
+                    // ray from pixel projection on eye plane in direction of normal to image plane
+                    ray = Ray(pixelCoordinate - scene.viewDir.unit() * d, scene.viewDir);
+                } else {
+                    // ray from eye to that pixel
+                    Vector3D origin = scene.eye;
+                    ray = Ray(scene.eye, (pixelCoordinate - origin).unit());
+                }
+                Color color = traceRayRecursive(ray, scene,
+                                                RECURSIVE_RAY_GRACE, RECURSIVE_DEPTH,
+                                                refractiveIndices,
+                                                opacities);
+                // Keep track of color
+                colors[i][j] = color;
+            }
 
             // Show progress
             if (i == 0) {
