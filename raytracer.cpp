@@ -26,7 +26,7 @@ using namespace std;
 #define RECURSIVE_DEPTH 6
 #define SOFT_SHADOW_JITTER 0
 #define NUM_SHADOW_RAYS_PER_POI 1
-#define NUM_DISTRIBUTED_RAYS 5
+#define NUM_DISTRIBUTED_RAYS 10
 #define DISTRIBUTED_RAYS_JITTER 5e-2
 
 // Returns global index of object the ray first hits (in front of the origin) and corresponding T parameter of the hit
