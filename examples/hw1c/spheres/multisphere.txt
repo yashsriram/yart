@@ -1,0 +1,25 @@
+# ===== Critical scene data =====
+eye         0       0       4
+viewdir     0       0       -1
+updir       0       1       0
+bkgcolor    0       0       0
+imsize      1000     700
+vfov        90.0
+
+# ===== projection type =====
+
+# ===== Lights =====
+# light 0 0 -1    0   .2 .2 .2
+light 0 0 4 1 1 1 1
+
+# ===== Objects =====
+texture textures/world.ppm
+mtlcolor 0 1 0 1 0 0 .5 .5 .5 8 1 1
+sphere 0 3 0 2
+sphere -3 0 0 2
+texture textures/am.ppm
+sphere 3 0 0 2
+sphere 0 -3 0 2
+# sphere -100 0 -50 50
+# sphere 0 100 -50 50
+# sphere 0 -100 -50 50

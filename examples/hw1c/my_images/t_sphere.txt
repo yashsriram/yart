@@ -1,0 +1,10 @@
+imsize 500 500
+eye 0.0 0.0 0.0
+viewdir 0.0 0.0 -1.0
+updir 0.0 1.0 0.0
+vfov 60.0
+bkgcolor 0.2 0.2 0.2
+mtlcolor 0 1.0 0 1 1 1 0.10 0.9 0.05 25.0 1 1
+texture textures/t_globe.ppm
+sphere 0 0 -5 1
+light 0.0 0 -1.0 0 1.0 1.0 1.0

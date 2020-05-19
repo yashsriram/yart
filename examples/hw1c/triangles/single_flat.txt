@@ -1,0 +1,33 @@
+# ===== Critical scene data =====
+eye         0       0       3
+viewdir     0       0       -1
+updir       0       1       0
+bkgcolor    0       0       0
+imsize      1000     500
+vfov        90.0
+
+# ===== Lights =====
+# light 0 0 -1    0   .2 .2 .2
+light 0 0 2     1   .9 .9 .9
+
+# ===== Objects =====
+# ===== Vertices =====
+v   0     0       1
+v   2     0       0
+v   1     1.732   0
+v   -1    1.732   0
+v   -2    0       0
+v   -1    -1.732  0
+v   1     -1.732  0
+# ===== Vertex normals =====
+vn 0      0       1
+vn 0.866  0.5     3.464
+vn 0      0.6     3.464
+vn -0.519 0.3     3.464
+vn -0.519 -0.3    3.464
+vn 0      -0.6    3.464
+vn 0.519  -0.3    3.464
+# ===== Texture coordinates =====
+# ===== Rectangle =====
+mtlcolor 1 0 1      1 0 1       .1 .1 1     6
+f 6 7 3

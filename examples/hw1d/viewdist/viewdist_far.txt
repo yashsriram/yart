@@ -1,0 +1,21 @@
+# ===== Critical scene data =====
+eye         0       0       4
+viewdir     0       0       -1
+updir       0       1       0
+bkgcolor    0       0       0
+imsize      1000     700
+vfov        90.0
+
+# ===== viewdist =====
+viewdist 24
+
+# ===== Lights =====
+light 0 0 4 1 1 1 1
+
+# ===== Objects =====
+mtlcolor 0 1 1 1 1 1 0.3 0.3 1 8 1 4
+sphere 2 0 2 0.2
+mtlcolor 1 0 0 1 1 1 0.1 0.1 0.1 8 0 4
+sphere 0 0 0 1
+mtlcolor 0 1 0 1 1 1 0.3 0.3 1 8 1 4
+sphere -7 0 -20 10
