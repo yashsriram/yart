@@ -1,0 +1,125 @@
+Varying ka
+
+eye 0.0 0.0 5.0
+viewdir 0.0 0.0 -1.0
+updir 0.0 1.0 0.0
+
+vfov 90.0
+imsize 500 500
+bkgcolor 0.5 1.0 1.0
+
+mtlcolor 1 0 0 0.0 1.0 0.0 0.9 0.4 0.6 2
+sphere 0.0 0.0 0.0 3
+
+light 2 0 5 1 1 1 1
+
+Varying kd
+
+eye 0.0 0.0 5.0
+viewdir 0.0 0.0 -1.0
+updir 0.0 1.0 0.0
+
+vfov 90.0
+imsize 500 500
+bkgcolor 0.5 1.0 1.0
+
+mtlcolor 1 0 0 0.0 1.0 0.0 0.5 0.1 0.6 2
+sphere 0.0 0.0 0.0 3
+
+light 2 0 5 1 1 1 1
+
+Varying ks
+
+eye 0.0 0.0 5.0
+viewdir 0.0 0.0 -1.0
+updir 0.0 1.0 0.0
+
+vfov 90.0
+imsize 500 500
+bkgcolor 0.5 1.0 1.0
+
+mtlcolor 1 0 0 0.0 1.0 0.0 0.5 0.5 0.6 2
+sphere 0.0 0.0 0.0 3
+
+light 2 0 5 1 1 1 1
+
+Varying n
+
+eye 0.0 0.0 5.0
+viewdir 0.0 0.0 -1.0
+updir 0.0 1.0 0.0
+
+vfov 90.0
+imsize 500 500
+bkgcolor 0.5 1.0 1.0
+
+mtlcolor 1 0 0 0.0 1.0 0.0 0.5 0.5 0.9 2
+sphere 0.0 0.0 0.0 3
+
+light 2 0 5 1 1 1 1
+
+Varying dlambda
+
+eye 0.0 0.0 5.0
+viewdir 0.0 0.0 -1.0
+updir 0.0 1.0 0.0
+
+vfov 90.0
+imsize 500 500
+bkgcolor 0.5 1.0 1.0
+
+mtlcolor 1 0 0 0.0 1.0 0.0 0.5 0.5 0.9 8
+sphere 0.0 0.0 0.0 3
+
+light 2 0 5 1 1 1 1
+
+Varying slambda
+
+eye 0.0 0.0 5.0
+viewdir 0.0 0.0 -1.0
+updir 0.0 1.0 0.0
+
+vfov 90.0
+imsize 500 500
+bkgcolor 0.5 1.0 1.0
+
+mtlcolor 1 0 0 0.0 1.0 0.0 0.5 0.5 0.9 8
+sphere 0.0 0.0 0.0 3
+
+light 2 0 5 1 1 1 1
+
+Varying type of light
+
+eye 0.0 0.0 5.0
+viewdir 0.0 0.0 -1.0
+updir 0.0 1.0 0.0
+
+vfov 90.0
+imsize 500 500
+bkgcolor 0.5 1.0 1.0
+
+mtlcolor 1 0 0 1 1 1 0.5 0.5 0.9 8
+sphere 0.0 0.0 0.0 1
+sphere 0.0 3.0 0.0 1
+
+light 0 0 -1 0 1 1 1
+
+Varying number of lights
+
+eye 0.0 0.0 5.0
+viewdir 0.0 0.0 -1.0
+updir 0.0 1.0 0.0
+
+vfov 90.0
+imsize 500 500
+bkgcolor 0.5 1.0 1.0
+
+mtlcolor 1 0 0 1 1 1 0.5 0.5 0.9 8
+sphere 0.0 0.0 0.0 1
+sphere 0.0 3.0 0.0 1
+
+light 0 0 5 1 1 1 1
+light 3 0 5 1 1 1 1
+light 0 3 5 1 1 1 1
+light 0 -3 5 1 1 1 1
+light -3 0 5 1 1 1 1
