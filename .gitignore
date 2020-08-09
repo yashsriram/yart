@@ -1,11 +1,2 @@
-ray_caster
 raytracer
-showcase.ppm
-tags
-*.pdf
-*.pdf
 .idea
-cmake-build-debug
-scratch.cpp
-a.out
-scratch.txt
