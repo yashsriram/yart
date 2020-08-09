@@ -1,5 +1,7 @@
-all: raytracer.cpp
-	g++ -std=c++11 raytracer.cpp -o raytracer
+all: raytracer
+
+raytracer: src/main.cpp include/*
+	g++ -Wall -std=c++11 -Iinclude src/main.cpp -o raytracer
 
 clean:
 	rm -rf raytracer

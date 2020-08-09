@@ -4,14 +4,14 @@
 #include <algorithm>
 #include <cmath>
 #include <utility>
-#include "include/vector3d.hpp"
-#include "include/color.hpp"
-#include "include/ray.hpp"
-#include "include/sphere.hpp"
-#include "include/triangle.hpp"
-#include "include/scene.hpp"
-#include "include/intersections.hpp"
-#include "include/texture.hpp"
+#include "vector3d.hpp"
+#include "color.hpp"
+#include "ray.hpp"
+#include "sphere.hpp"
+#include "triangle.hpp"
+#include "scene.hpp"
+#include "intersections.hpp"
+#include "texture.hpp"
 
 using namespace std;
 
