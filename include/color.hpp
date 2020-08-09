@@ -72,6 +72,7 @@ std::ostream &operator<<(std::ostream &out, const MaterialColor &mtl) {
     out << mtl.diffusion << "\t" << mtl.specular << "\t";
     out << "(" << mtl.ka << ", " << mtl.kd << ", " << mtl.ks << ")\t";
     out << mtl.n;
+    out << "(" << mtl.opacity << ", " << mtl.refractiveIndex << ")\t";
     return out;
 }
 
