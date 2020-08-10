@@ -20,7 +20,7 @@
 - The final executable reads a scene file (and possibly some texture files) and generates a `ppm` image.
 - Compile the raytracer using `make` to create an executable `raytracer`.
 - Create the image of a scene using `./raytracer <path-to-scene-file>`. It will be in the same directory as the scene file.
-    - For example, `./raytracer examples/triangles/single_flat.txt` creates `examples/triangles/single_flat.ppm`.
+    - For example, `./raytracer examples/scene.txt` creates `examples/scene.ppm`.
 
 ### format of scene file
 - The format is similar to [.obj](https://en.wikipedia.org/wiki/Wavefront_.obj_file) file format.
