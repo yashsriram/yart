@@ -141,9 +141,66 @@
 | --- | --- | --- |
 | ![](./github/light_intensity/rgb=0.250.250.25.jpg) | ![](./github/light_intensity/rgb=0.50.50.5.jpg) | ![](./github/light_intensity/rgb=111.jpg) |
 
+- Soft shadows
+
+| disabled | enabled |
+| --- | --- |
+| ![](./github/softshadows/shadows.jpg) | ![](./github/softshadows/softshadows.jpg) |
+
+- Vertex normals can be used to add smoothness without changing the mesh. In both of the below images the triangles have exactly same positions. Tuning vertex normals generates illusion of smoothness.
+
+| flat | smooth |
+| --- | --- |
+| ![](./github/vertex_normals/texture-flat.jpg) | ![](./github/vertex_normals/texture-smooth.jpg) |
+
+- Texture stitching.
+
+![](./github/textures/sphere.jpg)
+
+- Viewing distance can be adjusted to focus on objects at that particular distance while blurring out objects at other distances.
+
+| disabled | near focus | far focus |
+| --- | --- | --- |
+| ![](./github/viewdistance/viewdist_disabled.jpg) | ![](./github/viewdistance/viewdist_near.jpg) | ![](./github/viewdistance/viewdist_far.jpg) |
+
+- A simple reflection scene.
+
+![](./github/reflection/scene.jpg)
+
+- A refraction scene. Moving the back sphere, moves its image on the font sphere in reverse direction.
+
+| | | |
+| --- | --- | --- |
+| ![](./github/refraction/r1.jpg) | ![](./github/refraction/r2.jpg) | ![](./github/refraction/r3.jpg) |
+
+- A transparent sphere in a colorful room.
+
+![](./github/rainbow.jpg)
+
+- A transparent sphere of higher refractive index inside another transparent sphere. Increasing inner sphere size increases the shadow it casts (on the bottom left).
+
+![](./github/shadow_size/animation.gif)
+
+- Total internal reflection (TIR). A transparent sphere of refractive index `i` inside another transparent sphere of refractive index `o`.
+
+| i = o (no TIR) | i > o (TIR) |
+| --- | --- |
+| ![](./github/tir/notir.jpg) | ![](./github/tir/tir.jpg) |
+
+- A house.
+
+![](./github/t_house.jpg)
+
+
+- Parallel projection has no perspective distortion, therefore spheres look like perfect circles.
+
+| parallel | perspective |
+| --- | --- |
+| ![](./github/projection/parallel.jpg) | ![](./github/projection/perspective.jpg) |
+
 ## roadmap
 - [ ] decrease size of repo.
-- [ ] make sure all examples work.
+- [x] make sure all examples work.
 - [ ] add good examples to demo section.
 - [ ] reorder sections of readme.
 - [ ] add features to roadmap.
