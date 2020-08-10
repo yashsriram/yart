@@ -2,7 +2,7 @@
 
 ## description
 - Yet another ray tracer.
-- A simple ray tracer based on [Blinn-Phong reflection model](https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_reflection_model).
+- A simple [ray tracer](https://en.wikipedia.org/wiki/Ray_tracing_(graphics)) based on [Blinn-Phong reflection model](https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_reflection_model).
 
 ## code
 - Code is written in `C++`.
@@ -204,13 +204,6 @@
 - To change config, directly edit these values in `src/main.cpp` and recompile.
 
 ## roadmap
-- [x] decrease size of repo.
-- [x] make sure all examples work.
-- [x] add good examples to demo section.
-- [x] add features to roadmap; from demo, code, ps.
-- [x] add appropriate tags.
-- [x] reorder sections of readme.
-
 ### raytracer
 - [x] Ray sphere intersection.
 - [x] Ray triangle intersection (barycentric coordinates).
