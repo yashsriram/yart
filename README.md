@@ -133,6 +133,7 @@
 - [ ] make sure all examples work.
 - [ ] add good examples to demo section.
 - [ ] reorder sections of readme.
+- [ ] add features to roadmap.
 - There are examples scenes of
     - reflections and refractions where a parameter slightly changed to illustrate the changes
     - total internal reflection where refractive indices are changed to toggle the effect
