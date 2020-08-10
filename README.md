@@ -17,8 +17,8 @@
 ## usage
 
 ### how to run? [linux]
-- The final executable reads a scene file (and possibly some texture files) and generates a `ppm` image.
 - Compile the raytracer using `make` to create an executable `raytracer`.
+- The executable reads a scene file (and possibly some texture files) and generates a `ppm` image.
 - Create the image of a scene using `./raytracer <path-to-scene-file>`. It will be in the same directory as the scene file.
     - For example, `./raytracer examples/scene.txt` creates `examples/scene.ppm`.
 
@@ -45,7 +45,7 @@
         - `n` is the power in Blinn-Phong model.
         - `a` is opacity level (0 - 1).
         - `h` is refractive index.
-    - `texture <path-to-texture-file>`: - Path is assumed to start from raytracer executable directory.
+    - `texture <path-to-texture-file>`: Path is assumed to start from raytracer executable directory. Has to be a valid `ppm` file.
     - `sphere x y z radius`: A spherical object.
     - `v x y z`: Vertex position.
     - `vt u v`: A texture coordinate. `u` & `v` must be in [0, 1].
@@ -59,6 +59,10 @@
     - `parallel`: Presence indicates that parallel projection is to be used. Default is `perspective`.
     - `viewdist distance`: Viewing distance for depth of field effect.
 - Once a material color or texture is defined, it will be used for all the following objects in the scene until another is defined.
+- For integer parameters, don't add a succeding decimal part.
+    - `1` is ok.
+    - `1.` is not okay. `1.0` is not okay.
+    - This is caused merely because of the `cin` construct behaviour and has nothing to do with the ray tracer.
 
 ## demonstration
 
