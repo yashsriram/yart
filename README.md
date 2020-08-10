@@ -9,7 +9,7 @@
 - `include/` & `src/` contains all the src code.
 - `examples/` contains some example scene files.
 - `textures/` contains texture files.
-- `assignments/` contains problem statements from which this raytracer was created and some reports.
+- `assignments/` contains problem statements from which this raytracer was created.
 
 ## documentation
 - The documentation for the code is itself.
