@@ -14,7 +14,7 @@ light 0 0 4 1 1 1 1
 
 # ===== Objects =====
 # ===== Vertices =====
-mtlcolor 0 1 0 1 0 0 .5 .5 1 8
+mtlcolor 0 1 0 1 0 0 .5 .5 1 8 1 1
 sphere 100 0 -50 50
 sphere 0 100 -50 50
 sphere -100 0 -50 50
