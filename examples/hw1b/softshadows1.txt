@@ -6,18 +6,17 @@ vfov 90.0
 imsize 1000 500
 bkgcolor 0.5 1.0 1.0
 
-mtlcolor 1 0 0 1 0 0 0.5 0.4 0.6 2
+mtlcolor 1 0 0 1 0 0 0.5 0.4 0.6 2 1 1
 sphere 2.5 0.0 0.0 1
 
-mtlcolor 0 1 0 0 1 0 0.5 0.4 0.6 2
+mtlcolor 0 1 0 0 1 0 0.5 0.4 0.6 2 1 1
 sphere 0.0 2.5 0.0 1
 
-mtlcolor 0 0 1 0 0 1 0.5 0.4 0.6 2
+mtlcolor 0 0 1 0 0 1 0.5 0.4 0.6 2 1 1
 sphere 0.0 0.0 0.0 0.5
 
-mtlcolor 1 0 1 0 0 1 0.5 0.4 0.6 2
+mtlcolor 1 0 1 0 0 1 0.5 0.4 0.6 2 1 1
 sphere -7.0 0.0 0.0 0.5
 
-# light 1 0 0 0 0.5 0.5 0.5
-light -5 0 0 1 0.8 0.8 0.8
+light -5 0 0 1 0.5 0.5 0.5
 light 0 1 0 0 0.5 0.5 0.5
