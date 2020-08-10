@@ -66,6 +66,7 @@
 
 ### ray tracer configuration
 - Ray tracer has some configurable parameters, as listed with the defaults below.
+
 | name | description | default |
 | --- | --- | --- |
 | CAMERA\_MEDIUM\_REFRACTIVE\_INDEX | Refractive index of medium camera is placed in. | 1 |
@@ -75,6 +76,7 @@
 | NUM\_SHADOW\_RAYS\_PER\_POI | Number of shadow rays. Higher value produces softer shadows. | 1 |
 | NUM\_DISTRIBUTED\_RAYS | Number of rays traced per pixel. Higher value produces more diffused image. | 10 |
 | DISTRIBUTED\_RAYS\_JITTER | Measure of dispersion of rays traced per pixel. Higher value produces more diffused image.  | 5e-2 |
+
 - To change config, directly edit these values in `src/main.cpp` and recompile.
 
 ## demonstration
