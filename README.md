@@ -117,6 +117,7 @@
 | ![](./github/light_count/nl=1.jpg) | ![](./github/light_count/nl=3.jpg) | ![](./github/light_count/nl=5.jpg) |
 
 - Changing position of positional light moves the reflection spots towards the light as expected.
+
 | left | down | center | up | right |
 | --- | --- | --- | --- | --- |
 | ![](./github/light_position/xyz=-305.jpg) | ![](./github/light_position/xyz=0-35.jpg) | ![](./github/light_position/xyz=005.jpg) | ![](./github/light_position/xyz=035.jpg) | ![](./github/light_position/xyz=305.jpg) |
