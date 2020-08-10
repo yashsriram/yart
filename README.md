@@ -68,11 +68,17 @@
 
 ### comparisions
 - In each of the following comparisions, one parameter is changed while keeping all others constant.
-- Decreasing ka darkens object as it decreases ambient color component.
+- Decreasing `ka` darkens object as it decreases ambient color component.
 
 | 0.9 | 0.7 | 0.5 | 0.3 | 0.1 |
 | --- | --- | --- | --- | --- |
 | ![](./github/ka/ka=0.9.jpg) | ![](./github/ka/ka=0.7.jpg) | ![](./github/ka/ka=0.5.jpg) | ![](./github/ka/ka=0.3.jpg) | ![](./github/ka/ka=0.1.jpg) |
+
+- Decreasing `kd` darkens object as it decreases diffused color component.
+
+| 0.9 | 0.7 | 0.5 | 0.3 | 0.1 |
+| --- | --- | --- | --- | --- |
+| ![](./github/kd/kd=0.9.jpg) | ![](./github/kd/kd=0.7.jpg) | ![](./github/kd/kd=0.5.jpg) | ![](./github/kd/kd=0.3.jpg) | ![](./github/kd/kd=0.1.jpg) |
 
 
 
