@@ -147,6 +147,8 @@
 | --- | --- |
 | ![](./github/softshadows/shadows.jpg) | ![](./github/softshadows/softshadows.jpg) |
 
+![](./github/softshadows/sharp_soft_shadows.gif)
+
 - Vertex normals can be used to add smoothness without changing the mesh. In both of the below images the triangles have exactly same positions. Tuning vertex normals generates illusion of smoothness.
 
 | flat | smooth |
@@ -162,6 +164,8 @@
 | disabled | near focus | far focus |
 | --- | --- | --- |
 | ![](./github/viewdistance/viewdist_disabled.jpg) | ![](./github/viewdistance/viewdist_near.jpg) | ![](./github/viewdistance/viewdist_far.jpg) |
+
+![](./github/viewdistance/viewdist.gif)
 
 - A simple reflection scene.
 
@@ -179,7 +183,7 @@
 
 - A transparent sphere of higher refractive index inside another transparent sphere. Increasing inner sphere size increases the shadow it casts (on the bottom left).
 
-![](./github/shadow_size/animation.gif)
+![](./github/shadow_size/shadow_size.gif)
 
 - Total internal reflection (TIR). A transparent sphere of refractive index `i` inside another transparent sphere of refractive index `o`.
 
