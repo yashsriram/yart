@@ -80,9 +80,58 @@
 | --- | --- | --- | --- | --- |
 | ![](./github/kd/kd=0.9.jpg) | ![](./github/kd/kd=0.7.jpg) | ![](./github/kd/kd=0.5.jpg) | ![](./github/kd/kd=0.3.jpg) | ![](./github/kd/kd=0.1.jpg) |
 
+- Decreasing ks decreases shininess as it decreases reflective color component.
 
+| 0.9 | 0.7 | 0.5 | 0.3 | 0.1 |
+| --- | --- | --- | --- | --- |
+| ![](./github/ks/ks=0.9.jpg) | ![](./github/ks/ks=0.7.jpg) | ![](./github/ks/ks=0.5.jpg) | ![](./github/ks/ks=0.3.jpg) | ![](./github/ks/ks=0.1.jpg) |
+
+- Increasing n decreases the size of the reflected spot. As higher powers of a number < 1, viz. coefficient of reflective color, go to zero.
+
+| 2 | 4 | 8 | 16 | 32 |
+| --- | --- | --- | --- | --- |
+| ![](./github/n/n=2.jpg) | ![](./github/n/n=4.jpg) | ![](./github/n/n=8.jpg) | ![](./github/n/n=16.jpg) | ![](./github/n/n=32.jpg) |
+
+- Changing Od changes base ambient and diffused color of object but keeps reflective color same.
+
+| yellow | red | cyan | green | blue |
+| --- | --- | --- | --- | --- |
+| ![](./github/diffusion_color/110.jpg) | ![](./github/diffusion_color/100.jpg) | ![](./github/diffusion_color/011.jpg) | ![](./github/diffusion_color/010.jpg) | ![](./github/diffusion_color/001.jpg) |
+
+- Changing Os changes reflective color of object but keeps ambient and diffused color same.
+
+| yellow | red | cyan | green | blue |
+| --- | --- | --- | --- | --- |
+| ![](./github/specular_color/110.jpg) | ![](./github/specular_color/100.jpg) | ![](./github/specular_color/011.jpg) | ![](./github/specular_color/010.jpg) | ![](./github/specular_color/001.jpg) |
+
+- Point source reflections are more focused than directional source.
+
+| point source (at eye) | directional source (towards view dir) |
+| --- | --- |
+| ![](./github/light_type/type=1.jpg) | ![](./github/light_type/type=0.jpg) |
+
+- Increasing number of lights increases intensity of reflections.
+
+| 1 | 3 | 5 |
+| --- | --- | --- |
+| ![](./github/light_count/nl=1.jpg) | ![](./github/light_count/nl=3.jpg) | ![](./github/light_count/nl=5.jpg) |
+
+- Changing position of positional light moves the reflection spots towards the light as expected.
+| left | down | center | up | right |
+| --- | --- | --- | --- | --- |
+| ![](./github/light_position/xyz=-305.jpg) | ![](./github/light_position/xyz=0-35.jpg) | ![](./github/light_position/xyz=005.jpg) | ![](./github/light_position/xyz=035.jpg) | ![](./github/light_position/xyz=305.jpg) |
+
+- Increasing light rgb values increases intensity of diffused, ambient and reflected colors.
+
+| (0.25, 0.25, 0.25) | (.5, .5, .5) | (1, 1, 1) |
+| --- | --- | --- |
+| ![](./github/light_intensity/rgb=0.250.250.25.jpg) | ![](./github/light_intensity/rgb=0.50.50.5.jpg) | ![](./github/light_intensity/rgb=111.jpg) |
 
 ## roadmap
+- [ ] decrease size of repo.
+- [ ] make sure all examples work.
+- [ ] add good examples to demo section.
+- [ ] reorder sections of readme.
 - There are examples scenes of
     - reflections and refractions where a parameter slightly changed to illustrate the changes
     - total internal reflection where refractive indices are changed to toggle the effect
